@@ -12,15 +12,16 @@ import com.amazonaws.services.s3.model.{DeleteObjectRequest, S3ObjectSummary}
 import com.marble.core.data.cache.Redis
 import play.api.{Logger, Play}
 import play.api.mvc._
-import com.marble.utils.play.Auth._
+import com.marble.utils.play.Auth
 import com.marble.utils.reddit.Reddit
 import com.marble.core.data.db.models._
 import scala.collection.JavaConversions._
 import org.apache.commons.lang3.StringEscapeUtils._
 import com.marble.core.data.aws.S3._
 import scala.util.Random
+import com.marble.core.data.cache.Cache
 
-class EtcController @Inject() (redis: Redis) extends Controller {
+class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
 
     val subreddits = Map[String, List[String]]("worldnews" -> List("worldnews", "news"), "earthpics" -> List("earthporn"),
         "nba" -> List("nba"), "programming" -> List("programming", "programmerhumor"), "soccer" -> List("soccer"), "politics" -> List("politics"),
@@ -33,8 +34,8 @@ class EtcController @Inject() (redis: Redis) extends Controller {
 
     def refresh = AuthAction { implicit user => implicit request =>
         if ((user.isDefined && user.get.admin) || Play.isDev) {
-            redis.delete("gettingStarted_cache")
-            redis.delete("welcome_cache")
+            cache.delete("gettingStarted_cache")
+            cache.delete("welcome_cache")
             Ok("done.")
         } else {
             Found("/")

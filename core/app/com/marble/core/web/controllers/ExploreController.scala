@@ -1,10 +1,11 @@
 package com.marble.core.web.controllers
 
+import com.google.inject.Inject
 import com.marble.core.data.db.models._
-import com.marble.utils.play.Auth.AuthAction
+import com.marble.utils.play.Auth
 import play.api.mvc._
 
-class ExploreController extends Controller {
+class ExploreController @Inject() (auth: Auth) extends Controller {
 
     def explore = AuthAction { implicit user => implicit request =>
         val boards = Board.getTrendingBoards(limit = 50)

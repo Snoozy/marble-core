@@ -1,7 +1,10 @@
 package com.marble.core.web.controllers
 
+import com.google.inject.Inject
 import com.marble.core.data.aws.S3
-import com.marble.utils.play.Auth.AuthAction
+import com.marble.core.data.cache.Cache
+import com.marble.utils.play.Auth
+import com.marble.utils.play.Auth
 import play.api.libs.json.Json
 import com.marble.core.data.Constants
 import play.api.mvc._
@@ -11,7 +14,7 @@ import play.api.mvc._
  * media.
  */
 
-class MediaController extends Controller {
+class MediaController @Inject() (auth: Auth) extends Controller {
 
     private final val MediaIdentifier = "^media-\\S.*$".r
 

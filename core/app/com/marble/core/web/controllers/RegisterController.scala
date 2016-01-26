@@ -1,16 +1,16 @@
 package com.marble.core.web.controllers
 
+import com.google.inject.Inject
 import com.marble.core.data.cache
 import com.marble.core.data.db.models._
 import com.marble.core.email._
 import com.marble.utils.Etc
 import com.marble.utils.play.Auth
-import com.marble.utils.play.Auth.AuthAction
 import play.Play
 import play.api.mvc._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class RegisterController extends Controller {
+class RegisterController @Inject() (auth: Auth) extends Controller {
 
     def cleanRegisterPage = AuthAction { implicit user => implicit request =>
         Ok(com.marble.core.web.views.html.desktop.core.register())

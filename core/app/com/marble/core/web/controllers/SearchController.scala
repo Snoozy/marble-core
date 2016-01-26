@@ -1,11 +1,12 @@
 package com.marble.core.web.controllers
 
+import com.google.inject.Inject
 import com.marble.core.data.db.models._
 import com.marble.core.data.search.Search
-import com.marble.utils.play.Auth.AuthAction
+import com.marble.utils.play.Auth
 import play.api.mvc._
 
-class SearchController extends Controller {
+class SearchController @Inject() (auth: Auth) extends Controller {
 
     def searchPage = AuthAction { implicit user => implicit request =>
         val q = request.getQueryString("q")

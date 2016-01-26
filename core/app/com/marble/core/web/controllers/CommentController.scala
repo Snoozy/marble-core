@@ -1,14 +1,15 @@
 package com.marble.core.web.controllers
 
+import com.google.inject.Inject
 import com.marble.core.data.db.models._
-import com.marble.utils.play.Auth.AuthAction
+import com.marble.utils.play.Auth
 import com.marble.core.web.views.html.desktop.core
 import com.marble.core.web.views.html.desktop.components
 import com.marble.utils.Etc._
 import play.api.mvc._
 import play.api.libs.json.Json
 
-class CommentController extends Controller {
+class CommentController @Inject() (auth: Auth) extends Controller {
 
     def viewSingleComment(name: String, id: Int) = AuthAction { implicit user => implicit request =>
         val board = Board.find(name)

@@ -1,13 +1,14 @@
 package com.marble.core.web.controllers
 
+import com.google.inject.Inject
 import com.marble.core.data.aws.S3
 import com.marble.core.data.db.models._
-import com.marble.utils.play.Auth.AuthAction
+import com.marble.utils.play.Auth
 import play.api.mvc._
 import com.sksamuel.scrimage._
 
 
-class SettingsController extends Controller {
+class SettingsController @Inject() (auth: Auth) extends Controller {
 
     def userSettingsPage = AuthAction { implicit user => implicit request =>
         user match {

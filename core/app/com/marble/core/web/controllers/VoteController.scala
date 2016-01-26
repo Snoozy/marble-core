@@ -1,11 +1,12 @@
 package com.marble.core.web.controllers
 
+import com.google.inject.Inject
 import com.marble.core.data.db.models._
-import com.marble.utils.play.Auth.AuthAction
+import com.marble.utils.play.Auth
 import play.api.libs.json.Json
 import play.api.mvc._
 
-class VoteController extends Controller {
+class VoteController @Inject() (auth: Auth) extends Controller {
 
     def upvotePost(postId: Int) = votePost(postId, 1)
 

@@ -46,7 +46,7 @@ class Redis @Inject() (rc: RedisConfig) extends Cache {
         }
     }
 
-    def setex[A](key: String, value: Any, expire: Int = 86400) = {
+    def setex(key: String, value: Any, expire: Int = 86400) = {
         clients.withClient {
             client => {
                 client.setex(key, expire, value)

@@ -11,4 +11,6 @@ trait Cache {
 
     def delete(key: String)
 
+    def setex(key: String, value: Any, expire: Int = 86400)
+
 }

@@ -1,12 +1,13 @@
 package com.marble.core.web.controllers
 
-import com.marble.utils.play.Auth.AuthAction
+import com.google.inject.Inject
+import com.marble.utils.play.Auth
 import play.api.mvc._
 import com.marble.core.data.db.models._
 import com.marble.core.web.views.html.desktop.core
 import play.api.libs.json.Json
 
-class UserController extends Controller {
+class UserController @Inject() (auth: Auth) extends Controller {
 
     def userPage(username: String) = AuthAction { implicit user => implicit request =>
         if (username.startsWith("@")) {

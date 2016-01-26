@@ -1,14 +1,15 @@
 package com.marble.core.web.controllers
 
+import com.google.inject.Inject
 import com.marble.core.data.db.models._
 import com.marble.core.web.views.html.desktop.core
-import com.marble.utils.play.Auth.AuthAction
+import com.marble.utils.play.Auth
 import java.util.regex.Pattern
 import com.marble.core.data.Constants
 import play.api.mvc._
 import play.api.libs.json.Json
 
-class BoardController extends Controller {
+class BoardController @Inject() (auth: Auth) extends Controller {
 
     def boardPage(name: String) = AuthAction { implicit user => implicit request =>
         val board = Board.find(name)

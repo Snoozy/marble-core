@@ -1,14 +1,15 @@
 package com.marble.core.web.controllers
 
+import com.google.inject.Inject
 import com.marble.core.data.db.models._
 import com.marble.core.web.views.html.desktop.components
 import com.marble.core.web.views.html.desktop.core
 import com.marble.utils.Etc._
-import com.marble.utils.play.Auth.AuthAction
+import com.marble.utils.play.Auth
 import play.api.libs.json.Json
 import play.api.mvc._
 
-class PostController extends Controller {
+class PostController @Inject() (auth: Auth) extends Controller {
 
     def viewPostPage(board_name: String, postId: Int) = AuthAction { implicit user => implicit request =>
         val board = Board.find(board_name)

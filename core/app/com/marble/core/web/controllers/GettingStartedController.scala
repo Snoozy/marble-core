@@ -1,9 +1,10 @@
 package com.marble.core.web.controllers
 
-import com.marble.utils.play.Auth.AuthAction
+import com.google.inject.Inject
+import com.marble.utils.play.Auth
 import play.api.mvc._
 
-class GettingStartedController extends Controller {
+class GettingStartedController @Inject() (auth: Auth) extends Controller {
 
     def gettingStarted = AuthAction { implicit user => implicit request =>
         user match {

@@ -1,12 +1,13 @@
 package com.marble.core.web.controllers
 
+import com.google.inject.Inject
 import com.marble.core.data.db.models._
-import com.marble.utils.play.Auth.AuthAction
+import com.marble.utils.play.Auth
 import com.marble.utils.Etc._
 import play.api.mvc._
 import play.api.libs.json.Json
 
-class PageController extends Controller {
+class PageController @Inject() (auth: Auth) extends Controller {
 
     def neverending = AuthAction { implicit user => implicit request =>
         val context = request.getQueryString("context")
