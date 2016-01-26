@@ -1,0 +1,66 @@
+# Routes
+
+# GET
+
+GET         /v1/boards/:id/describe               com.marble.core.api.controllers.BoardController.describe(id: Int)
+GET         /v1/posts/:id/describe                com.marble.core.api.controllers.PostController.describe(id: Int)
+
+GET         /v1/posts/:id/comments                com.marble.core.api.controllers.PostController.topComments(id: Int)
+
+GET         /v1/users/describe                    com.marble.core.api.controllers.UserController.describe
+GET         /v1/users/:id/boards                  com.marble.core.api.controllers.UserController.getBoards(id: Int)
+GET         /v1/users/:id/posts                   com.marble.core.api.controllers.UserController.getPosts(id: Int)
+GET         /v1/users/:id/comments                com.marble.core.api.controllers.UserController.getComments(id: Int)
+
+GET         /v1/boards/:id/feed                   com.marble.core.api.controllers.BoardController.getBoardTrendingPosts(id: Int)
+GET         /v1/boards/search                     com.marble.core.api.controllers.SearchController.fullSearchBoard
+GET         /v1/boards/autocomplete               com.marble.core.api.controllers.SearchController.autoCompleteBoard
+
+GET         /v1/me/feed                           com.marble.core.api.controllers.UserController.getFeed
+GET         /v1/me/describe                       com.marble.core.api.controllers.UserController.describeSelf
+GET         /v1/me/notifications                  com.marble.core.api.controllers.NotificationController.getNotifications
+GET         /v1/me/boards/trending                com.marble.core.api.controllers.BoardController.getTrending
+
+GET         /v1/comments/:id/describe             com.marble.core.api.controllers.CommentController.describe(id: Int)
+
+GET         /v1/me/conversations                  com.marble.core.api.controllers.MessageController.getConversations
+GET         /v1/conversations/:id/messages        com.marble.core.api.controllers.MessageController.getMessages(id: Int)
+GET         /v1/conversations/:id/paged           com.marble.core.api.controllers.MessageController.getPaged(id: Int)
+GET         /v1/conversations/:id/poll            com.marble.core.api.controllers.MessageController.poll(id: Int)
+GET         /v1/user/:id/messages                 com.marble.core.api.controllers.MessageController.getMessagesByUser(id: Int)
+
+GET         /v1/asdf/qwer                         com.marble.core.api.controllers.EtcController.etc
+
+# POST
+
+POST        /v1/users/register                    com.marble.core.api.controllers.UserController.create
+POST        /v1/boards/create                     com.marble.core.api.controllers.BoardController.create
+
+POST        /v1/me/inbox/read                     com.marble.core.api.controllers.MessageController.readInbox
+POST        /v1/me/settings                       com.marble.core.api.controllers.SettingController.updateSelf
+POST        /v1/me/settings/password              com.marble.core.api.controllers.SettingController.updatePassword
+POST        /v1/board/:id/settings                com.marble.core.api.controllers.SettingController.updateBoard(id: Int)
+POST        /v1/me/notifications/read             com.marble.core.api.controllers.NotificationController.readNotifications
+
+POST        /v1/auth/login                        com.marble.core.api.controllers.AuthController.login
+POST        /v1/auth/logout                       com.marble.core.api.controllers.AuthController.logout
+
+POST        /v1/me/ping                           com.marble.core.api.controllers.AuthController.ping
+
+POST        /v1/posts/create                      com.marble.core.api.controllers.PostController.create
+POST        /v1/comments/create                   com.marble.core.api.controllers.CommentController.create
+POST        /v1/media/upload                      com.marble.core.api.controllers.MediaController.upload
+
+POST        /v1/boards/:id/follow                 com.marble.core.api.controllers.BoardController.followBoard(id: Int)
+POST        /v1/boards/:id/unfollow               com.marble.core.api.controllers.BoardController.unfollowBoard(id: Int)
+
+POST        /v1/comments/:id/upvote               com.marble.core.api.controllers.VoteController.upvoteComment(id: Int)
+POST        /v1/comments/:id/downvote             com.marble.core.api.controllers.VoteController.downvoteComment(id: Int)
+POST        /v1/posts/:id/upvote                  com.marble.core.api.controllers.VoteController.upvotePost(id: Int)
+POST        /v1/posts/:id/downvote                com.marble.core.api.controllers.VoteController.downvotePost(id: Int)
+
+POST        /v1/user/:id/message                  com.marble.core.api.controllers.MessageController.send(id: Int)
+
+POST        /v1/report/post                       com.marble.core.api.controllers.AbuseController.flagPost
+POST        /v1/report/comment                    com.marble.core.api.controllers.AbuseController.flagComment
+POST        /v1/block/user                        com.marble.core.api.controllers.AbuseController.blockUser

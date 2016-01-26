@@ -1,0 +1,104 @@
+<div class="modal fade in" id="signup-modal" tabindex="-1" role="dialog" aria-labelledby="signup-modal" aria-hidden="true">
+    <div class="modal-dialog" style="width:350px;margin-top:43px;">
+        <div class="modal-content">
+            <div class="modal-header" style="padding: 10px 15px;">
+                <div class="signup-modal-logo">
+                    <img class="c-logo-img" src="https://static.themarble.co/marble-logo-gray.png" style="height:40px;width:40px;">
+                </div>
+            </div>
+            <div class="modal-body">
+                <h1 class="signup-modal-header">Sign up for Marble</h1>
+                <div class="fb-login-container" style="padding:0;margin-bottom:10px;">
+                    <a href="#" class="fb-signup-button no-dec">
+                        <div class="fb-register-fill">
+                            <img alt="Facebook Signup" src="//static.themarble.co/facebookLogo.png" style="margin: 10px 5px;margin-left:7px;">
+                            <div class="fb-register-text">
+                                <span class="register-bold">Continue</span>
+                                with
+                                <span class="register-bold">Facebook</span>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <div class="or-sep">
+                    <p style="margin:0;font-weight:bold;color:rgba(0,0,0,0.3);">
+                        or
+                    </p>
+                </div>
+                <form action="/signup" method="POST" class="user-login-form" style="padding:10px 0 0; border:none;margin-bottom:13px;">
+                    <input class="form-control" type="text" name="name" value="" placeholder="Full Name" style="margin-bottom:8px;height:40px;">
+                    <input class="form-control" type="email" name="email" value="" placeholder="Email" style="height:40px;">
+                    <input class="form-control" type="password" name="password" style="margin-top: 8px;height:40px;" value="" placeholder="Password">
+                    <p><input class="btn btn-primary" type="submit" name="submit" value="Sign Up for Marble" style="font-weight:bold;font-size:18px;width:100%;margin-bottom:-40px;"></p>
+                    <br/>
+                </form>
+                <div class="separator"></div>
+                <div class="login-prefix">Already a member?</div>
+                <div class="signup-modal-login-container">
+                    <a class="btn btn-default signup-modal-login boomerang" style="width:115px;" href="/login">Login</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId : '911323222224791',
+            cookie : true,
+            xfbml : true,
+            version : 'v2.3'
+        });
+    };
+
+    (function(d, s, id) {
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) return;
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/sdk.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    $(function() {
+        var rerequest_email = false;
+        $('.fb-signup-button').click(function(e) {
+            e.preventDefault();
+            if (!rerequest_email) {
+                FB.login(function(response) {
+                    if (response.status === 'connected') {
+                        FB.api('/me/permissions', function (r) {
+                            for (i = 0; i < r.data.length; i++) {
+                                var p = r.data[i];
+                                if (p.permission === "email" && p.status === "granted") {
+                                    window.location.href = '/connect/facebook?fb_token=' + response.authResponse.accessToken + '&next=' + encodeURIComponent(window.location.href)
+                                } else if (p.permission === "email" && p.status === "declined") {
+                                    $('.fb-signup-button').tooltip({'title' : 'Oops! We need your email! Please try again.'});
+                                    $('.fb-signup-button').tooltip('show');
+                                    rerequest_email = true;
+                                }
+                            }
+                        });
+                    }
+                }, {scope: 'email,public_profile,user_friends'});
+            } else {
+                FB.login(function(response) {
+                    if (response.status === 'connected') {
+                        FB.api('/me/permissions', function (r) {
+                            for (i = 0; i < r.data.length; i++) {
+                                var p = r.data[i];
+                                if (p.permission === "email" && p.status === "granted") {
+                                    window.location.href = '/connect/facebook?fb_token=' + response.authResponse.accessToken + '&next=' + encodeURIComponent(window.location.href)
+                                } else if (p.permission === "email" && p.status === "declined") {
+                                    $('.fb-signup-button').tooltip({'title' : 'Oops! We need your email! Please try again.'});
+                                    $('.fb-signup-button').tooltip('show');
+                                    rerequest_email = true;
+                                }
+                            }
+                        });
+                    }
+                }, {scope: 'email', auth_type: "rerequest"});
+            }
+        });
+    });
+</script>

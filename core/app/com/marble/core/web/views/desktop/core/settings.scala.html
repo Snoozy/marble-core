@@ -1,0 +1,299 @@
+@(user: User)
+
+@import com.marble.core.web.views.html.desktop.components
+@import com.marble.core.web.controllers.RemoteURLController
+
+@components.base("Settings | Marble") {
+    <link rel="stylesheet" href="https://static.themarble.co/css/cropper.min.css" type="text/css">
+} {
+
+    <body class="main-background">
+        @components.masthead(Some(user), searchBar = true)()
+        <div class="page-container">
+            <div class="register-container" style="width:700px;">
+                <div class="register-inner">
+                    <div class="register-header" style="text-align:left;">
+                        <span class="register-text">
+                            Account Settings
+                        </span>
+                    </div>
+                    <form role="form" method="post" action="/settings" enctype="multipart/form-data" class="settings-inner">
+                        <ul>
+                            <li class="setting-li">
+                                <h4 class="setting-type">
+                                    Name
+                                </h4>
+                                <div class="setting-input">
+                                    <input type="text" class="form-control" name="name" value="@user.name">
+                                </div>
+                            </li>
+                            <li class="setting-li">
+                                <h4 class="setting-type">
+                                    Username
+                                </h4>
+                                <div class="setting-input">
+                                    <input type="text" class="form-control" name="username" value="@user.username">
+                                </div>
+                            </li>
+                            <li class="setting-li">
+                                <h4 class="setting-type" style="margin-top:0;">
+                                    Password
+                                </h4>
+                                <div class="setting-input">
+                                    @if(user.password != "") {
+                                        <a href="#" class="change-password has-password">Change your password...</a>
+                                    } else {
+                                        <a href="#" class="change-password no-password">Set your password...</a>
+                                    }
+                                </div>
+                            </li>
+                            <li class="setting-li">
+                                <h4 class="setting-type">
+                                    Bio
+                                </h4>
+                                <div class="setting-input">
+                                    <textarea type="text" class="form-control setting-textarea" name="bio" style="height:85px;">@user.bio</textarea>
+                                </div>
+                            </li>
+                            <li class="setting-li">
+                                <h4 class="setting-type">
+                                    Picture
+                                </h4>
+                                <div class="picture-setting-container" style="overflow:hidden;">
+                                    <img class="picture-setting-avatar" src="@(user.photo + "_prof")">
+                                </div>
+                                <div class="setting-input" style="margin-left:0px;margin-top:10px;display:inline-block;vertical-align:top;">
+                                    <div class="picture_upload btn btn-default" style="padding:7px 10px;margin-left:10px;">
+                                        <span class="glyphicon glyphicon-camera"></span> Change picture
+                                        <input type="file" id="picture-change-upload" class="file-input" tabindex="-1" name="picture" accept="image/*">
+                                        <input type="hidden" id="picture-x" name="picture-x">
+                                        <input type="hidden" id="picture-y" name="picture-y">
+                                        <input type="hidden" id="picture-width" name="picture-width">
+                                        <input type="hidden" id="picture-height" name="picture-height">
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                        <div class="register-form-button">
+                            <button type="button" class="btn btn-default" style="width: 80px;margin-right:15px;" onclick="window.location.href='/user/@user.username'">Cancel</button>
+                            <button type="submit" class="btn btn-primary" style="width:120px;" name="settings_submit">Save Settings</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade in" id="has-password-modal" tabindex="-1" role="dialog" aria-labelledby="has-password-modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="repost-modal-label" style="text-align: center;">Change Password</h4>
+                    </div>
+                    <div class="modal-body" style="padding-bottom:0;padding-top:5px;">
+                        <ul>
+                            <li class="setting-li" style="border-top:none;">
+                                <h4 class="setting-type">
+                                    Current Password
+                                </h4>
+                                <div class="setting-input">
+                                    <input type="password" class="form-control has-password-input current-password" name="password">
+                                    <p class="curr-password-error displaynone">Password incorrect.</p>
+                                </div>
+                            </li>
+                            <ul>
+                                <li class="setting-li">
+                                    <h4 class="setting-type">
+                                        New Password
+                                    </h4>
+                                    <div class="setting-input">
+                                        <input type="password" class="form-control has-password-input new-password" name="password">
+                                    </div>
+                                </li>
+                            </ul>
+                            <ul>
+                                <li class="setting-li">
+                                    <h4 class="setting-type">
+                                        New Password, Again
+                                    </h4>
+                                    <div class="setting-input">
+                                        <input type="password" class="form-control has-password-input repeat-password" name="password">
+                                        <p class="password-error displaynone">Passwords don't match</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </ul>
+                    </div>
+                    <div class="modal-footer" style="margin-top:5px;">
+                        <button type="button" class="btn btn-primary has-password-submit-button">Change Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade in" id="no-password-modal" tabindex="-1" role="dialog" aria-labelledby="no-password-modal" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="repost-modal-label" style="text-align: center;">Set Password</h4>
+                    </div>
+                    <div class="modal-body" style="padding-bottom:0;padding-top:5px;">
+                        <ul>
+                            <li class="setting-li" style="border-top:none;">
+                                <h4 class="setting-type">
+                                    New Password
+                                </h4>
+                                <div class="setting-input">
+                                    <input type="password" class="form-control no-password-input new-password" name="password">
+                                </div>
+                            </li>
+                            <ul>
+                                <li class="setting-li">
+                                    <h4 class="setting-type">
+                                        New Password, Again
+                                    </h4>
+                                    <div class="setting-input">
+                                        <input type="password" class="form-control no-password-input repeat-password" name="password">
+                                        <p class="password-error displaynone">Passwords don't match</p>
+                                    </div>
+                                </li>
+                            </ul>
+                        </ul>
+                    </div>
+                    <div class="modal-footer" style="margin-top:5px;">
+                        <button type="button" class="btn btn-primary no-password-submit-button">Set Password</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade in" id="cropper-modal" tabindex="-1" role="dialog" aria-labelledby="cropper-modal" aria-hidden="true">
+            <div class="modal-dialog" style="width:300px;">
+                <div class="modal-content" style="max-height:700px;">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title" id="repost-modal-label" style="text-align: center;">Profile Picture</h4>
+                    </div>
+                    <div class="modal-body" style="padding-bottom:0;padding-top:5px;">
+                        <div class="cropper-img-container" style="height:250px;">
+                            <img src="" alt="Picture" class="cropper-img">
+                        </div>
+                    </div>
+                    <div class="modal-footer" style="margin-top:5px;">
+                        <div class="cropper-help" style="font-weight:bold;float:left;">Scroll to zoom.</div>
+                        <button type="button" class="btn btn-primary cropper-submit">Apply</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript" src="https://static.themarble.co/js/cropper.js"></script>
+
+        <script>
+            $(function() {
+
+                $('.no-password').click(function() {
+                    $('#no-password-modal').modal();
+                });
+
+                $('.has-password').click(function() {
+                    $('#has-password-modal').modal();
+                });
+
+                $('.has-password-submit-button').click(function(e) {
+                    e.preventDefault();
+                    var currentPass = $('.has-password-input.current-password').val();
+                    var newPass = $('.has-password-input.new-password').val();
+                    var repeat = $('.has-password-input.repeat-password').val();
+                    if (newPass != repeat) {
+                        $('.has-password-input.repeat-password').addClass('input-error');
+                        $('#has-password-modal .password-error').removeClass('displaynone');
+                        return false;
+                    }
+                    $.ajax({
+                        url: '/a/changePass',
+                        type: 'POST',
+                        data: {
+                            "current" : currentPass,
+                            "new" : newPass
+                        },
+                        success: function() {
+                            $('#has-password-modal').modal('hide');
+                            $('.has-password-input').val('');
+                        },
+                        error: function() {
+                            $('.has-password-input.current-password').addClass('input-error');
+                            $('#has-password-modal .curr-password-error').removeClass('displaynone');
+                        }
+                    });
+                });
+
+                $('.no-password-submit-button').click(function(e) {
+                    e.preventDefault();
+                    var newPass = $('.no-password-input.new-password').val();
+                    var repeat = $('.no-password-input.repeat-password').val();
+                    if (newPass != repeat) {
+                        $('.no-password-input.repeat-password').addClass('input-error');
+                        $('#no-password-modal .password-error').removeClass('displaynone');
+                        return false;
+                    }
+                    $.ajax({
+                        url: '/a/setPass',
+                        type: 'POST',
+                        data: {
+                            "new" : newPass
+                        },
+                        success: function() {
+                            $('#no-password-modal').modal('hide');
+                        }
+                    });
+                });
+
+                function readURL(input) {
+
+                    if (input.files && input.files[0]) {
+                        var reader = new FileReader();
+
+                        reader.onload = function (e) {
+                            $('.cropper-img').attr('src', e.target.result);
+                            $('#cropper-modal').on('shown.bs.modal', function () {
+                                $('.cropper-img').cropper('destroy');
+                                $('.cropper-img').cropper({
+                                  autoCropArea: 1,
+                                  highlight: false,
+                                  aspectRatio: 1,
+                                  background: false,
+                                  guides: false,
+                                  dragCrop: false,
+                                  movable: false,
+                                  resizable: false,
+                                  preview: '.picture-setting-container'
+                                });
+                            }).on('hidden.bs.modal', function () {
+                            });
+                            $('#cropper-modal').modal();
+                        };
+
+                        reader.readAsDataURL(input.files[0]);
+                    }
+                }
+
+                $(document).on('change', '#picture-change-upload', function() {
+                    readURL(this);
+                });
+
+                $('.cropper-submit').click(function() {
+                    var data = $('.cropper-img').cropper('getData');
+                    $('#picture-x').val(data.x);
+                    $('#picture-y').val(data.y);
+                    $('#picture-height').val(data.height);
+                    $('#picture-width').val(data.width);
+                    $('#cropper-modal').modal('hide');
+                });
+
+            });
+        </script>
+    </body>
+
+}

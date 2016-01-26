@@ -1,0 +1,94 @@
+@(commentTreeNode: CommentTreeNode, user: Option[User], board: Board, originalPoster: Int)(expanded: Boolean = false,
+        vote: Option[CommentVote] = user.flatMap{u => CommentVote.findByCommentAndUser(commentTreeNode.comment.commentId.get, u.userId.get)},
+        commenter: User = User.find(commentTreeNode.comment.userId).get,
+        root: Boolean = false,
+        anonImg: String = "https://static.themarble.co/image/anon",
+        timestamp: Boolean = true
+        )
+
+@import com.marble.utils.Etc
+@import com.marble.core.web.views.html.desktop.components
+
+<div class="@if(root){root-comment }comment-container">
+    <div class="comment" data-comment-id="@commentTreeNode.comment.commentId.get" data-post-id="@commentTreeNode.comment.postId">
+        @if(commentTreeNode.comment.status == 1) {
+            <div class="comment-avatar">
+                <img src="@(anonImg + "_small")" class="avatar" style="height:32px;width:32px;border-radius:3px;"/>
+            </div>
+            <strong style="font-weight:500;margin-right:2px;margin-left:5px;" class="deleted-user">
+                [deleted]
+            </strong>
+        } else {
+            <div class="comment-avatar">
+                <a href="/user/@commenter.username">
+                    <img src="@(commenter.photo + "_small")" class="avatar" style="height:32px;width:32px;border-radius:3px;"/>
+                </a>
+            </div>
+            <a href="/user/@commenter.username" style="margin-right:2px;margin-left:5px;" class="commenter-anchor@if(originalPoster == commentTreeNode.comment.userId){ op-post}">
+                <strong>@commenter.name</strong>
+            </a>
+        }
+        @if(timestamp) {
+            ·
+            <span class="comment-timestamp">
+                <a class="post-timestamp" href="/@board.name/comments/@commentTreeNode.comment.commentId.get">
+                @Etc.convertEpochToTimestamp(commentTreeNode.comment.time)
+                </a>
+            </span>
+        }
+        <p class="comment-content">
+            @if(commentTreeNode.comment.status != 1) {
+                @Html(Etc.parseHTML(commentTreeNode.comment.data))
+            } else {
+                [comment deleted]
+            }
+        </p>
+        <div class="comment-actions">
+            <div class="like-count" style="margin:0;display:inline-block;vertical-align: text-top;line-height:1;">
+                @commentTreeNode.comment.votes
+            </div>
+            ·
+            @if(commentTreeNode.comment.status != 1) {
+                <a href="#" class="c-action no-dec like@if(vote.isDefined && vote.get.value == 1) { liked}">
+                    <i class="icon-upvote" style="vertical-align:text-top;"></i>
+                </a>
+                <span style="color : #ccc" class="vote-separator"> | </span>
+                <a href="#" class="c-action no-dec dislike@if(vote.isDefined && vote.get.value == -1) { disliked}" style="margin-left:-2px;margin-right:-2px;">
+                    <i class="icon-downvote"></i>
+                </a>
+                <span class="c-action-separator"> · </span>
+            }
+            <a href="#" class="c-action reply">
+                <span class="color-blue">Reply</span>
+            </a>
+                <div class="comment-options-dropdown dropdown">
+                    <a href="#" class="c-action comment-options" data-toggle="dropdown">
+                        <span class="glyphicon glyphicon-option-horizontal option-icon"></span>
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li role="presentation">
+                            <a class="comment-permalink" href="/@board.name/comments/@commentTreeNode.comment.commentId" target="_blank">
+                                <span class="glyphicon glyphicon-link"></span>
+                                Permalink
+                            </a>
+                        </li>
+                        @if(user.isDefined && commentTreeNode.comment.status != 1 && (user.get.userId.get == commenter.userId.get || user.get.admin)) {
+                            <li role="presentation">
+                                <a class="comment-delete" href="#">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                    Delete
+                                </a>
+                            </li>
+                        }
+                    </ul>
+                </div>
+        </div>
+        <div class="comment-children-container">
+            @if(expanded) {
+                @for(child <- commentTreeNode.children) {
+                    @components.comment(child, user, board, originalPoster)(expanded = expanded)
+                }
+            }
+        </div>
+    </div>
+</div>

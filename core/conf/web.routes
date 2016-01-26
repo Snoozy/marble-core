@@ -1,0 +1,76 @@
+# Routes
+# This file defines all application routes (Higher priority routes first)
+# ~~~~
+
+#GET
+
+GET         /                                com.marble.core.web.controllers.IndexController.homePage
+GET         /signup                          com.marble.core.web.controllers.RegisterController.cleanRegisterPage
+GET         /user/:username                  com.marble.core.web.controllers.UserController.userPage(username: String)
+GET         /login                           com.marble.core.web.controllers.AuthController.cleanLoginPage
+GET         /boards/create                   com.marble.core.web.controllers.BoardController.createBoardPage
+GET         /:name/posts/:id                 com.marble.core.web.controllers.PostController.viewPostPage(name: String, id: Int)
+GET         /logout                          com.marble.core.web.controllers.AuthController.logout
+GET         /boards/explore                  com.marble.core.web.controllers.ExploreController.explore
+GET         /settings                        com.marble.core.web.controllers.SettingsController.userSettingsPage
+GET         /gettingstarted                  com.marble.core.web.controllers.GettingStartedController.gettingStarted
+GET         /singup                          com.marble.core.web.controllers.RegisterController.cleanRegisterPage
+GET         /search                          com.marble.core.web.controllers.SearchController.searchPage
+GET         /:name/comments/:id              com.marble.core.web.controllers.CommentController.viewSingleComment(name: String, id: Int)
+GET         /inbox                           com.marble.core.web.controllers.MessageController.inbox
+GET         /support                         com.marble.core.web.controllers.StaticController.support
+GET         /login/reset                     com.marble.core.web.controllers.AuthController.resetPasswordPage
+GET         /password/reset                  com.marble.core.web.controllers.AuthController.resetPasswordAuth
+
+GET         /a/neverending                   com.marble.core.web.controllers.PageController.neverending
+GET         /a/check_email                   com.marble.core.web.controllers.UserController.checkEmail
+GET         /a/board/:name/delete            com.marble.core.web.controllers.BoardController.deleteBoard(name: String)
+
+GET         /connect/facebook                com.marble.core.web.controllers.SocialController.facebookAuth
+
+GET         /a/conversation/:id/paged        com.marble.core.web.controllers.MessageController.getPaged(id: Int)
+GET         /a/conversation/:id/poll         com.marble.core.web.controllers.MessageController.poll(id: Int)
+GET         /a/conversation/:id              com.marble.core.web.controllers.MessageController.getConversation(id: Int)
+
+GET         /a/wassup                        com.marble.core.web.controllers.EtcController.refresh
+GET         /a/debug                         com.marble.core.web.controllers.EtcController.debug
+GET         /a/clean                         com.marble.core.web.controllers.EtcController.cleanS3
+GET         /a/thedayisnow                   com.marble.core.web.controllers.EtcController.reddit
+
+
+#POST
+POST        /signup                          com.marble.core.web.controllers.RegisterController.attemptRegister
+POST        /login                           com.marble.core.web.controllers.AuthController.attemptLogin
+POST        /boards/create                   com.marble.core.web.controllers.BoardController.attemptCreateBoard
+POST        /settings                        com.marble.core.web.controllers.SettingsController.userSettingsChange
+POST        /login/reset                     com.marble.core.web.controllers.AuthController.resetPasswordPost
+POST        /password/reset                  com.marble.core.web.controllers.AuthController.resetPasswordAttempt
+
+#AJAX CALLS
+POST        /a/post                          com.marble.core.web.controllers.PostController.post
+POST        /a/repost                        com.marble.core.web.controllers.PostController.repost
+POST        /a/post/:id/upvote               com.marble.core.web.controllers.VoteController.upvotePost(id: Int)
+POST        /a/post/:id/downvote             com.marble.core.web.controllers.VoteController.downvotePost(id: Int)
+POST        /a/post/:id/comment              com.marble.core.web.controllers.CommentController.createComment(id: Int)
+POST        /a/comment/:id/upvote            com.marble.core.web.controllers.VoteController.upvoteComment(id: Int)
+POST        /a/comment/:id/downvote          com.marble.core.web.controllers.VoteController.downvoteComment(id: Int)
+POST        /a/post/:id/delete               com.marble.core.web.controllers.PostController.deletePost(id: Int)
+POST        /a/comment/:id/delete            com.marble.core.web.controllers.CommentController.deleteComment(id: Int)
+POST        /a/group/:id/follow              com.marble.core.web.controllers.BoardController.followBoard(id: Int)
+POST        /a/group/:id/unfollow            com.marble.core.web.controllers.BoardController.unfollowBoard(id: Int)
+POST        /a/upload                        com.marble.core.web.controllers.MediaController.upload
+POST        /a/setPass                       com.marble.core.web.controllers.AuthController.setPassword
+POST        /a/changePass                    com.marble.core.web.controllers.AuthController.changePassword
+POST        /a/notifications/read            com.marble.core.web.controllers.NotificationController.readNotifications
+
+POST        /a/user/:id/message              com.marble.core.web.controllers.MessageController.send(id: Int)
+
+#Board catchalls
+GET         /:name                           com.marble.core.web.controllers.BoardController.boardPage(name: String)
+GET         /:name/settings                  com.marble.core.web.controllers.SettingsController.boardSettingsPage(name: String)
+
+POST        /:name/settings                  com.marble.core.web.controllers.SettingsController.boardSettingsChange(name: String)
+
+GET         /legal/*file                     controllers.Assets.at(path="/public/legal", file)
+# Map static resources from the /public folder to the /assets URL path
+GET         /assets/*file                    controllers.Assets.at(path="/public", file)

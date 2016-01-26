@@ -1,0 +1,136 @@
+@(user: Option[User] = None, searchBar: Boolean = false, searchQuery: String = "",
+        fixed: Boolean = true, buttons: Boolean = true, small: Boolean = false)(notifications: Option[Seq[Notification]] = user.map(u => Notification.getNotifications(u.userId.get)))
+
+@import com.marble.utils.Etc
+@import com.marble.core.web.views.html.desktop.components
+
+@if(fixed && !small) {
+    <div style="height:44px;" class="masthead-displacement"></div>
+}
+<div class="masthead" style="@if(!fixed || small){position:relative;}">
+    <nav class="navbar navbar-default" style="min-height:45px;width:873px;margin:auto;border:none;">
+        <div class="navbar-header">
+            <a class="navbar-brand navbar-logo masthead-logo" style="position:absolute;left:50%;margin-left:-44px;height:45px;" href="/">
+                @if(small) {
+                    <img src="//static.themarble.co/marble-logo-white.png" height="34px" class="masthead-avatar">
+                } else {
+                    <img src="//static.themarble.co/marble_white.png" height="34px" class="masthead-avatar">
+                }
+            </a>
+        </div>
+        @if(!small) {
+            @if(searchBar) {
+                <div class="navbar-form navbar-left" style="margin-bottom:4px;margin-top:7px;padding-left:1px;padding-right:0;">
+                    <div class="form-group input-group">
+                        <form class="navbar-search">
+                            <input type="search" class="form-control search-query" placeholder="Search" style="width:200px;padding-right:30px;" value="@searchQuery">
+                            <span class="input-group-btn">
+                                <button type="submit" class="search-submit">
+                                    <span class="glyphicon glyphicon-search" style="font-size: 13px;"></span>
+                                </button>
+                            </span>
+                        </form>
+                    </div>
+                </div>
+            }
+            @if(user.isDefined) {
+                <div class="navbar-settings-wrapper dropdown">
+                    <a href="#" class="dropdown-toggle" id="settings-dropdown" data-toggle="dropdown" aria-expanded="true" style="color:#000000;">
+                        <span class="glyphicon glyphicon-cog masthead-cog" style="font-size:19px;color:#fdfdfd"></span>
+                    </a>
+                    <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="settings-dropdown">
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="/settings"><span class="glyphicon glyphicon-wrench" style="font-size:15px;"></span> Settings</a></li>
+                        <li role="presentation" class="divider"></li>
+                        <li role="presentation"><a role="menuitem" tabindex="-1" href="/logout"><span class="glyphicon glyphicon-off" style="font-size:15px;"></span> Logout</a></li>
+                    </ul>
+                </div>
+                <div class="navbar-button-separator-wrapper">
+                    <span class="navbar-button-separator">|</span>
+                </div>
+                <div class="navbar-inbox-wrapper" style="margin-top:7px;margin-right:3px;padding-left:8px;">
+                    <a href="/inbox" class="inbox-anchor">
+                        <span class="glyphicon glyphicon-envelope masthead-inbox" style="font-size: 17px;"></span>
+                        <div class="inbox-bubble@if(user.get.inboxCount < 1) { displaynone}">@if(user.get.inboxCount < 100) {@user.get.inboxCount} else {99+}</div>
+                    </a>
+                </div>
+                <div class="navbar-notifs-wrapper" style="margin-top:7px;margin-right:0;padding-left:5px;">
+                    <a href="#" class="dropdown-toggle notifications-anchor" id="notifs-dropdown" data-toggle="dropdown" aria-expanded="true">
+                        <span class="glyphicon glyphicon-bell masthead-bell"></span>
+                        @defining(notifications.get.count(!_.read)) { s =>
+                            <div class="notification-bubble@if(s < 1) { displaynone}">@s</div>
+                        }
+                    </a>
+                    <ul class="dropdown-menu pull-right" role="menu" aria-labelledby="notifs-dropdown">
+                        <li role="presentation">
+                            <div class="notifications-header">
+                                <span class="notifications-header-text">
+                                    Notifications
+                                </span>
+                            </div>
+                        </li>
+                        <li role="presentation" class="notification-list">
+                            <div class="notifications-wrapper">
+                                @if(notifications.isDefined && notifications.get.nonEmpty) {
+                                    @for(n <- notifications.get) {
+                                        @components.notification(n)()
+                                    }
+                                } else {
+                                    <div class="no-notifications">
+                                        No more notifications...
+                                    </div>
+                                }
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+                <div class="navbar-user-wrapper">
+                    <a href="/user/@user.get.username" class="no-dec navbar-user-anchor">
+                        <div class="navbar-user-avatar-wrapper">
+                            <img class="navbar-user-avatar" src="@(user.get.photo + "_small")">
+                        </div>
+                        <div class="navbar-user-info">
+                            <span class="navbar-user-info-text">
+                            @Etc.parseFirstName(user.get.name)
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            }
+            @if(buttons && user.isEmpty) {
+                <div class="navbar-button-wrapper navbar-signup">
+                    <a href="/login" class="no-dec navbar-button-anchor">
+                        <div class="navbar-button-div">
+                            <span class="navbar-button-text">
+                                Login
+                            </span>
+                        </div>
+                    </a>
+                </div>
+                <div class="navbar-button-separator-wrapper">
+                    <span class="navbar-button-separator">|</span>
+                </div>
+                <div class="navbar-button-wrapper navbar-signup">
+                    <a href="/signup" class="no-dec navbar-button-anchor">
+                        <div class="navbar-button-div">
+                            <span class="navbar-button-text">
+                                Sign Up
+                            </span>
+                        </div>
+                    </a>
+                </div>
+                <div class="navbar-button-separator-wrapper">
+                    <span class="navbar-button-separator">|</span>
+                </div>
+                <div class="navbar-button-wrapper navbar-explore">
+                    <a href="/boards/explore" class="no-dec navbar-button-anchor">
+                        <div class="navbar-button-div" style="padding-left:8px;">
+                            <span class="navbar-button-text">
+                                Explore
+                            </span>
+                        </div>
+                    </a>
+                </div>
+            }
+        }
+    </nav>
+</div>

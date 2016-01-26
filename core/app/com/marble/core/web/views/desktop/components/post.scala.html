@@ -1,0 +1,311 @@
+@(post: Post, user: Option[User], singleComment: Option[Comment] = None)(board: Board = Board.find(post.boardId).get,
+        poster: User = User.find(post.userId).get,
+        vote: Option[PostVote] = user.flatMap{u => PostVote.findByPostAndUser(post.postId.get, u.userId.get)},
+        repost: Option[Post] = post.repostId.flatMap(Post.find),
+        reposted: Boolean = user.exists{ u => Post.userHasReposted(u.userId.get, post.postId.get)},
+        full: Boolean = false,
+        anonImg: String = "https://static.themarble.co/image/anon",
+        expanded: Boolean = false,
+        media: Seq[Option[Media]] = post.media.map(m => Media.find(m)),
+        timestamp: Boolean = true
+        )
+
+@import com.marble.core.web.views.html.desktop.components
+@import com.marble.utils.Etc
+
+<li class="post box-shadow-apply" data-item-id="@post.postId.get">
+    <div class="post-wrapper">
+        <div class="margin-maker">
+            <div class="post-header">
+                <div class="user-avatar">
+                    <a href="/user/@poster.username">
+                        <div class="post-avatar-wrapper">
+                            <img class="post-avatar" src="@(poster.photo + "_small")">
+                        </div>
+                    </a>
+                </div>
+                @if(user.isDefined && (poster.userId.get == user.get.userId.get || user.get.admin)) {
+                    <div class="post-functions dropdown">
+                        <a class="dropdown-toggle post-func-dropdown" data-toggle="dropdown" href="#">
+                            <i class="icon-drop-arrow" style="margin-right:0;width:1em;"></i>
+                        </a>
+                        <ul class="dropdown-menu post-dropdown pull-right">
+                            <li>
+                                <a class="post-delete" href="#">
+                                    <span class="glyphicon glyphicon-trash"></span>
+                                    Delete
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                }
+                <div class="user-info">
+                    <label class="u-info-wrapper">
+                        <a href="/user/@poster.username" data-user-id="@poster.userId.get" class="username-anchor no-dec" style="margin-left:0px;">
+                            <strong class="hover-blue user-name-text">@poster.name</strong>
+                        </a>
+                    </label>
+                    <i class="right-arrow-icon"></i>
+                    <label class="u-info-wrapper">
+                        <a href="/@board.name" class="no-dec">
+                            <strong class="hover-blue board-name-text">@board.name</strong>
+                        </a>
+                    </label>
+                    @if(timestamp) {
+                        <div class="timestamp-wrapper">
+                            ·
+                            <a class="post-timestamp" href="/@board.name/posts/@post.postId.get">
+                            @Etc.convertEpochToTimestamp(post.time.longValue)
+                            </a>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="post-content">
+                @if(post.title.isDefined) {
+                    <div class="post-text-title">
+                        <span class="post-text-title-text">
+                            @post.title.get
+                        </span>
+                    </div>
+                }
+                @if(media.nonEmpty) {
+                    @if(media.head.isDefined) {
+                        <div class="post-picture-container">
+                            <a class="fluidbox" href="@media.head.get.mediaUrl">
+                                @if(media.head.get.mediaType == 1) {
+                                    <img src="@(media.head.get.mediaUrl)" class="post-picture">
+                                } else {
+                                    <img src="@(media.head.get.mediaUrl + "_med")" class="post-picture">
+                                }
+                            </a>
+                        </div>
+                    }
+                }
+                @if(post.data != "") {
+                    <div class="post-text-container">
+                        <div class="post-text">
+                            @Html(Etc.parseHTML(post.data))
+                        </div>
+                    </div>
+                }
+                @if(repost.isDefined) {
+                    @defining(Board.find(repost.get.boardId)) { b =>
+                        <div class="repost-content">
+                            <div class="repost-post-info">
+                                <div class="user-info">
+                                    <label class="u-info-wrapper">
+                                        @if(b.get.privacy == 0) {
+                                            @defining(User.find(repost.get.userId)) { u =>
+                                                <div class="repost-avatar-container">
+                                                    <a href="/user/@u.get.username">
+                                                        <img class="repost-avatar" src="@(u.get.photo + "_small")">
+                                                    </a>
+                                                </div>
+                                                <a href="/user/@u.get.username" data-user-id="@u.get.userId.get" class="username-anchor no-dec">
+                                                    <strong class="hover-blue user-name-text">@u.get.name</strong>
+                                                </a>
+                                            }
+                                        } else {
+                                            <div class="repost-avatar-container">
+                                                <img class="repost-avatar" src="@(anonImg + "_prof")">
+                                            </div>
+                                            <strong class="hover-blue user-name-text anonymous-user">Anonymous</strong>
+                                        }
+                                    </label>
+                                    <i class="right-arrow-icon"></i>
+                                    <label class="u-info-wrapper">
+                                            <a href="/@b.get.name" class="no-dec">
+                                                <strong class="hover-blue board-name-text">@b.get.name</strong>
+                                            </a>
+                                    </label>
+                                    <span style="font-weight: 600;">:</span>
+                                </div>
+                            </div>
+                            @if(repost.get.title.isDefined) {
+                                <div class="post-text-title">
+                                    <span class="post-text-title-text">
+                                    @repost.get.title.get
+                                    </span>
+                                </div>
+                            }
+                            @if(repost.get.media.nonEmpty) {
+                                @defining(Media.find(repost.get.media.head)) { m =>
+                                    <div class="post-picture-container">
+                                        <a class="fancybox" href="@m.get.mediaUrl">
+                                            @if(m.get.mediaType == 1) {
+                                                <img src="@m.get.mediaUrl" class="post-picture">
+                                            } else {
+                                                <img src="@(m.get.mediaUrl + "_med")" class="post-picture">
+                                            }
+                                        </a>
+                                    </div>
+                                }
+                            }
+                            @if(repost.isDefined && post.data != "") {
+                                <div class="post-text-container">
+                                    <div class="post-text">
+                                        @Html(Etc.parseHTML(repost.get.data))
+                                    </div>
+                                </div>
+                            }
+                            <div class="repost-dialog">
+                                <a href="/@b.get.name/posts/@repost.get.postId.get" class="repost-post-anchor">
+                                    <i class="glyphicon glyphicon-share-alt" style="margin-right: -1px;"></i>
+                                    Original post
+                                </a>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="post-actions">
+                <span class="post-like-count">@post.votes</span>
+                <span class="p-action like">
+                    <a class="p-action-anchor action-link-like @if(vote.isDefined && vote.get.value == 1) {liked}" href="#" style="margin-right:0px;">
+                        <i class="icon-upvote" style=""></i>
+                        <span class="color-blue like-text">Upvote</span>
+                    </a>
+                </span>
+
+                <span class="p-action dislike">
+                    <span style="color:#ccc"> | </span>
+                    <a class="p-action-anchor action-link-dislike @if(vote.isDefined && vote.get.value == -1) {disliked}" href="#" style="margin-left:-1px;margin-right:-3px;">
+                        <i class="icon-downvote"></i>
+                    </a>
+                </span>
+
+                <span class="p-action comment">
+                    <span class="bullet"> · </span>
+                    <a class="p-action-anchor action-link-comment" href="#">
+                        <i class="icon-comments-alt" style=""></i>
+                        <span class="color-blue comment-text">Comment</span>
+                    </a>
+                </span>
+                @if(user.isDefined && (post.userId != user.get.userId.get)) {
+                    <span>
+                        <span class="p-action repost">
+                            <span class="bullet"> · </span>
+                            <a href="#" class="p-action-anchor action-link-repost" style="margin-left: 2px;">
+                                <i class="glyphicon glyphicon-retweet@if(reposted){ color-green}" style="margin-right:4px;"></i>
+                                <span class="color-blue repost-text@if(reposted){ color-green}">Repost@if(reposted){ed}</span>
+                            </a>
+                        </span>
+                    </span>
+                }
+                <span class="p-action comment">
+                    <span class="bullet"> · </span>
+                    <a class="p-action-anchor action-link-share" data-share-url="https://www.marble.co/@board.name/posts/@post.postId.get" href="#">
+                        <i class="icon-fb-share"></i>
+                        <span class="color-blue comment-text" style="margin-left:5px;">Share</span>
+                    </a>
+                </span>
+            </div>
+
+                @if(!expanded) {
+                    @defining(CommentTree.getTopRootComments(post.postId.get)) { comments =>
+                        @if(comments.nonEmpty) {
+                            <hr class="hr-no-margin comment-hr">
+                        }
+                        <div class="comments-container">
+
+                        @if(user.isDefined) {
+                            <div class="comment-form">
+                                <img class="comment-avatar" src="@(user.get.photo + "_small")">
+                                <form class="comment-input">
+                                    <textarea class="form-control comment-val input-xlarge" rows="1" placeholder="Write a comment..." style="height:34px;"></textarea>
+                                    <input type="submit" class="btn btn-primary comment-submit-btn displaynone" value="Comment">
+                                    <div class="clear"></div>
+                                </form>
+                            </div>
+                        }
+
+                        @if(comments.nonEmpty) {
+                            <div class="view-all-comments-wrapper">
+                                <a href="/@board.name/posts/@post.postId.get">
+                                    <div class="view-all-comments">
+                                        <span class="view-all-comments-text">View all comments</span>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+
+                        <div class="displaynone comment-start-marker"></div>
+                        @for(comment <- comments.take(3)) {
+                            @components.comment(CommentTreeNode(comment, Seq()), user, board, poster.userId.get)(expanded = expanded, root = true, timestamp = timestamp)
+                            @defining(CommentTree.getCommentNumChildren(comment.commentId.get)) { n =>
+                                @if(n > 0) {
+                                    <div class="view-replies-wrapper">
+                                        <a href="/@board.name/posts/@post.postId.get">
+                                            <div class="view-replies">
+                                                <span class="glyphicon glyphicon-share-alt" style="display:inline-block;transform:scale(1,-1);"></span>
+                                                <span class="view-replies-text">
+                                                    View @n repl@if(n != 1) {ies} else {y}</span>
+                                            </div>
+                                        </a>
+                                    </div>
+                                }
+                            }
+                        }
+                        </div>
+                    }
+                } else {
+                    @if(singleComment.isEmpty) {
+                        @defining(CommentTree.getPostCommentsTop(post.postId.get)) { comments =>
+                            @if(comments.rootComments.nonEmpty) {
+                                <hr class="hr-no-margin comment-hr">
+                            }
+                            <div class="comments-container">
+                                @if(user.isDefined) {
+                                    <div class="comment-form">
+                                        <img class="comment-avatar" src="@(user.get.photo + "_small")">
+                                        <form class="comment-input">
+                                            <textarea class="form-control comment-val input-xlarge" rows="1" placeholder="Write a comment..." style="height:34px;"></textarea>
+                                            <input type="submit" class="btn btn-primary comment-submit-btn displaynone" value="Comment">
+                                            <div class="clear"></div>
+                                        </form>
+                                    </div>
+                                }
+                                <div class="displaynone comment-start-marker"></div>
+                                @for(comment <- comments.rootComments) {
+                                    @components.comment(comment, user, board, poster.userId.get)(expanded = expanded, root = true, timestamp = timestamp)
+                                }
+                            </div>
+                        }
+                    } else {
+                        @defining(CommentTree.getCommentTree(singleComment.get)) { comment =>
+                            @if(comment.rootComments.nonEmpty) {
+                                <hr class="hr-no-margin comment-hr">
+                            }
+                            <div class="comments-container">
+                                @if(user.isDefined) {
+                                    <div class="comment-form">
+                                        <img class="comment-avatar" src="@(user.get.photo + "_small")">
+                                        <form class="comment-input">
+                                            <textarea class="form-control comment-val input-xlarge" rows="1" placeholder="Write a comment..." style="height:34px;"></textarea>
+                                            <input type="submit" class="btn btn-primary comment-submit-btn displaynone" value="Comment">
+                                            <div class="clear"></div>
+                                        </form>
+                                    </div>
+                                }
+                                <div class="alert alert-info single-comment-warning" style="margin-bottom: 10px;padding: 8px 15px;">
+                                    You are viewing a single comment's thread
+                                    <a href="/@board.name/posts/@post.postId.get">
+                                        <div class="single-comment-link">
+                                            <i class="glyphicon glyphicon-share-alt" style="margin-right:2px;"> </i>View the rest of the comments</div>
+                                    </a>
+                                </div>
+                                <div class="displaynone comment-start-marker"></div>
+                                @for(comment <- comment.rootComments) {
+                                    @components.comment(comment, user, board, poster.userId.get)(expanded = expanded, root = true, timestamp = timestamp)
+                                }
+                            </div>
+
+                        }
+                    }
+                }
+        </div>
+    </div>
+</li>

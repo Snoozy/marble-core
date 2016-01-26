@@ -1,0 +1,127 @@
+@(board: Board, user: Option[User], posts: Seq[Post])(trending: Seq[Board] = Board.getTrendingBoards(limit = 7),
+        postCount: Int = Board.getPostsCount(board.boardId.get),
+        following: Boolean = user.exists{ u => User.userIsFollowing(u.userId.get, board.boardId.get)}
+        )
+
+@import com.marble.core.web.views.html.desktop.components
+@import com.marble.core.data.db.models._
+
+@components.base(board.name + " | Marble") {
+
+} {
+    <body class="main-background context-board@if(user.isEmpty){ logged-out}" data-board-id="@board.boardId.get">
+        <div class="page" style="margin:0;">
+            @components.masthead(user, searchBar = true)()
+            <div id="content">
+                <div class="container-fluid inner-background" style="border-radius:10px;margin-left:auto;margin-right:auto;width:870px;border-top-left-radius:0px;border-top-right-radius:0px;padding-left:0px;padding-right:0px;">
+                    @if(user.isEmpty) {
+                        @components.convince_signup(board)
+                    }
+                    <div class="main-row" style="">
+                        <div class="big-container box-shadow-apply">
+                            <div class="board-follow-btn-container @if(following){following}else{notfollowing}" data-board-id="@board.boardId.get">
+                                <button class="btn btn-default board-follow-btn" style="font-size:16px;background-image:none;width:89px;">
+                                    <span class="btn-text follow-text">Join</span>
+                                    <span class="btn-text following-text">Joined</span>
+                                    <span class="btn-text unfollow-text">Leave</span>
+                                </button>
+                            </div>
+                            @if(user.isDefined && (board.creatorId == user.get.userId.get || user.get.admin)) {
+                                <a href="/@board.name/settings">
+                                    <div class="group-settings-btn">
+                                        <span class="glyphicon glyphicon-cog blue-cog" style="font-size:19px;"></span>
+                                    </div>
+                                </a>
+                            }
+                            <div class="board-info">
+                                <div class="board-data-container">
+                                    <div class="board-avatar">
+                                        <a class="fluidbox" href="@board.photo">
+                                            <img src="@(board.photo + "_prof")" class="board-avatar-img">
+                                        </a>
+                                        @if(user.isDefined && board.creatorId == user.get.userId.get) {
+                                            <div class="profile-pic-selector">
+                                                <a class="profile-pic-change" href="/@board.name/settings">
+                                                    <i class="glyphicon glyphicon-camera profile-pic-camera"></i>
+                                                    <div class="profile-pic-change-text">
+                                                        Update board picture
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="board-name-container">
+                                        <span class="main-board-name-text">
+                                            @board.name
+                                        </span>
+                                    </div>
+                                    <div class="board-descr-container" style="max-width: 560px;">
+                                        <span class="board-descr-text">
+                                        @board.description
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="stats-container">
+                                    <div class="stat followers">
+                                        <span class="stat-number">
+                                        @board.followers
+                                        </span>
+                                        Follower@if(board.followers != 1){s}
+                                    </div>
+                                    <div class="stat posts">
+                                        <span class="stat-number">
+                                        @postCount
+                                        </span>
+                                        Post@if(postCount != 1){s}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="board-posts-container">
+                            <div class="posts-container" style="display:inline-block;margin-right:10px;width:606px;padding:0px;">
+                                <div class="posts-wrapper" style="text-align:left;">
+                                    <ol class="posts">
+                                            <!--First post is the ui for creating a post. -->
+                                        @if(user.isDefined && following) {
+                                            @components.first_post(user.get, Seq(board), boardPage = true)
+                                        }
+
+                                        @for(post <- posts) {
+                                            @components.post(post, user)()
+                                        }
+
+                                        @if(posts.length < 1) {
+                                            @components.no_posts()
+                                        }
+
+                                    </ol>
+                                    <div @if(posts.length < 19){class="displaynone" }id="neverending_spinner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column2">
+                            <div class="board-related-boards-container box-shadow-apply">
+                                <div class="small-board-header">
+                                    <b style="font-size:16px;">Related Boards</b>
+                                </div>
+                                @for(b <- trending) {
+                                    @components.small_board(b)
+                                }
+                            </div>
+                            @components.footer()
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if(user.isDefined) {
+            @components.repost_modal(User.getBoards(user.get.userId.get))
+        } else {
+            @components.logged_out()
+        }
+
+        @components.fb_init()
+
+    </body>
+}

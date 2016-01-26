@@ -1,0 +1,156 @@
+@(name: String = "", password : String = "", email: String = "", username: String = "")
+
+@import com.marble.core.web.views.html.desktop.components
+
+@com.marble.core.web.views.html.desktop.components.base("Sign Up for Marble") {
+
+    @components.fb_init()
+
+    <script>
+        $(function() {
+            $('.welcome_signup').submit(function() {
+                var email = $('.input-email').val();
+                var submit_form = false;
+                if ($.trim(email).length) {
+                    $.ajax({
+                        url: '/a/check_email?email=' + email,
+                        dataType: 'json',
+                        async: false,
+                        success: function() {
+                            submit_form = true;
+                        },
+                        error: function() {
+                            $('.email-form').addClass('has-error');
+                            $('.email-form').tooltip({'title': 'Email already in use.', 'placement': 'right', 'trigger': 'manual'});
+                            $('.email-form').tooltip('show');
+                            submit_form = false;
+                        }
+                    });
+                }
+                if (submit_form && !$.trim($('.input-email').val()).length && !$.trim($('.input-name').val()).length && !$.trim($('.input-password').val()).length) {
+                    submit_form = true;
+                }
+                if (!submit_form) {
+                    if (!$.trim($('.input-email').val()).length) {
+                        $('.email-form').addClass('has-error');
+                        $('.email-form').tooltip({'title': 'Email required.', 'placement': 'right', 'trigger': 'manual'});
+                        $('.email-form').tooltip('show');
+                    }
+                    if (!$.trim($('.input-name').val()).length) {
+                        $('.name-form').addClass('has-error');
+                        $('.name-form').tooltip({'title': 'Name required.', 'placement': 'right', 'trigger': 'manual'});
+                        $('.name-form').tooltip('show');
+                    }
+                    if (!$.trim($('.input-password').val()).length) {
+                        $('.password-form').addClass('has-error');
+                        $('.password-form').tooltip({'title': 'Password required.', 'placement': 'right', 'trigger': 'manual'});
+                        $('.password-form').tooltip('show');
+                    }
+                }
+                return submit_form;
+            });
+
+            $('.form-control').keydown(function() {
+                $(this).parent().removeClass('has-error');
+                $(this).parent().tooltip('destroy');
+            });
+
+            var rerequest_email = false;
+            $('.fb-signup-button').click(function(e) {
+                e.preventDefault();
+                if (!rerequest_email) {
+                    FB.login(function(response) {
+                        if (response.status === 'connected') {
+                            FB.api('/me/permissions', function (r) {
+                                for (i = 0; i < r.data.length; i++) {
+                                    var p = r.data[i];
+                                    if (p.permission === "email" && p.status === "granted") {
+                                        window.location.href = '/connect/facebook?fb_token=' + response.authResponse.accessToken
+                                    } else if (p.permission === "email" && p.status === "declined") {
+                                        $('.fb-signup-button').tooltip({'title' : 'Oops! We need your email! Please try again.', 'trigger': 'manual'});
+                                        $('.fb-signup-button').tooltip('show');
+                                        rerequest_email = true;
+                                    }
+                                }
+                            });
+                        }
+                    }, {scope: 'email,public_profile,user_friends'});
+                } else {
+                    FB.login(function(response) {
+                        if (response.status === 'connected') {
+                            FB.api('/me/permissions', function (r) {
+                                for (i = 0; i < r.data.length; i++) {
+                                    var p = r.data[i];
+                                    if (p.permission === "email" && p.status === "granted") {
+                                        window.location.href = '/connect/facebook?fb_token=' + response.authResponse.accessToken
+                                    } else if (p.permission === "email" && p.status === "declined") {
+                                        $('.fb-signup-button').tooltip({'title' : 'Oops! We need your email! Please try again.', 'trigger': 'manual'});
+                                        $('.fb-signup-button').tooltip('show');
+                                        rerequest_email = true;
+                                    }
+                                }
+                            });
+                        }
+                    }, {scope: 'email', auth_type: "rerequest"});
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .form-group {
+            margin-bottom: 10px;
+        }
+        .register-form-button {
+            text-align: center;
+        }
+    </style>
+}{
+    <body class="main-background">
+        @com.marble.core.web.views.html.desktop.components.welcome_masthead(login = false)
+        <div class="page-container">
+            <div class="register-container">
+                <div class="register-inner">
+                    <div class="register-header">
+                        <span class="register-text">
+                            Join Marble today.
+                        </span>
+                    </div>
+                    <div class="fb-login-container">
+                        <a href="#" class="fb-signup-button no-dec">
+                            <div class="fb-register-fill">
+                                <img alt="Facebook Signup" src="//static.themarble.co/facebookLogo.png" style="margin: 10px 5px;margin-left:7px;">
+                                <div class="fb-register-text">
+                                    <span class="register-bold">Continue</span>
+                                    with
+                                    <span class="register-bold">Facebook</span>
+                                </div>
+                            </div>
+                        </a>
+                    </div>
+                    <div class="or-sep" style="text-align:center;">
+                        <p style="margin:0;font-weight:bold;color:rgba(0,0,0,0.3);">
+                            or
+                        </p>
+                    </div>
+                    <form role="form" method="post" action="/signup" class="welcome_signup" style="text-align: center;">
+                        <div class="form-group name-form">
+                            <input type="text" class="form-control input-name" name="name" placeholder="Full Name">
+                        </div>
+                        <div class="form-group email-form">
+                            <input type="email" class="form-control input-email" name="email" placeholder="Email">
+                        </div>
+                        <div class="form-group password-form">
+                            <input type="password" class="form-control input-password" name="password" placeholder="Password">
+                        </div>
+                        <button type="submit" class="btn btn-primary signup-submit" name="submit" style="float:none;width:297px;margin-top:5px;">Sign Up for Marble</button>
+                    </form>
+                    <div class="welcome-legal" style="margin-top:-22px;margin-bottom:10px;padding: 0 20px;text-align:center;font-size:11px;text-shadow:0 1px rgba(0,0,0,0.18);color:#aaa;">
+                        Creating an account means you agree to Marble's <a href="/legal/tos.html" target="_blank">Terms of Service</a> and <a href="/legal/privacy.html" target="_blank">Privacy Policy</a>.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+
+}

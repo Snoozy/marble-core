@@ -1,0 +1,72 @@
+@(error: Boolean = false, errorMessage: String = "", email: String = "", next: Option[String] = None)
+
+@import com.marble.core.web.views.html.desktop.components
+
+@components.base("Login | Marble") {
+    <script>
+        window.fbAsyncInit = function() {
+            FB.init({
+                appId : '911323222224791',
+                cookie : true,
+                xfbml : true,
+                version : 'v2.3'
+            });
+        };
+
+        (function(d, s, id) {
+            var js, fjs = d.getElementsByTagName(s)[0];
+            if (d.getElementById(id)) return;
+            js = d.createElement(s); js.id = id;
+            js.src = "//connect.facebook.net/en_US/sdk.js";
+            fjs.parentNode.insertBefore(js, fjs);
+        }(document, 'script', 'facebook-jssdk'));
+
+        $(function() {
+            $('.fb-signup-button').click(function(e) {
+                e.preventDefault();
+                FB.login(function(response) {
+                    if (response.status === 'connected') {
+                        window.location.href = '/connect/facebook?fb_token=' + response.authResponse.accessToken@if(next.isDefined){ + '&next=@helper.urlEncode(next.get)'}
+                    }
+                }, {scope: 'email,public_profile,user_friends'});
+            });
+        });
+    </script>
+} {
+
+    <body class="main-background">
+        @com.marble.core.web.views.html.desktop.components.masthead(None, buttons = false)()
+        <div class="login-wrapper" style="min-height:0px;">
+            <div class="login-header-wrapper">
+                Login to Marble
+            </div>
+            <div class="fb-login-container">
+                <a href="#" class="fb-signup-button no-dec">
+                    <div class="fb-register-fill">
+                        <img alt="Facebook Signup" src="//static.themarble.co/facebookLogo.png" style="margin: 10px 5px;margin-left:7px;">
+                        <div class="fb-register-text">
+                            <span class="register-bold">Login</span>
+                            with
+                            <span class="register-bold">Facebook</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <form action="/login@if(next.isDefined){?next=@helper.urlEncode(next.get)}" method="POST" class="user-login-form">
+                <input class="form-control" type="email" name="email" value="@email" placeholder="Email" style="height:40px;">
+                <input class="form-control" type="password" name="password" style="margin-top: 8px;height:40px;" value="" placeholder="Password">
+                @if(error) {
+                    <div class="login-error">@errorMessage</div>
+                }
+                <p><input class="btn btn-primary" type="submit" name="login.submitted" value="Login" style="font-weight:bold;font-size:18px;width:100%;margin-bottom:-50px;"></p>
+                <br/>
+                <div class="forgot-password">
+                    <a href="/login/reset" class="forgot-password-anchor">
+                        Forgot your password?
+                    </a>
+                </div>
+            </form>
+        </div>
+    </body>
+
+}

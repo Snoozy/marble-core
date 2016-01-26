@@ -1,0 +1,62 @@
+@(conversations: Seq[Conversation], user: User)
+
+@import com.marble.core.web.views.html.desktop.components
+@import com.marble.utils.Etc
+
+@components.base("Inbox | Marble") {
+
+}{
+    <body class="main-background context-inbox">
+        <div class="page">
+            @components.masthead(Some(user), searchBar = true)()
+            <div id="content" style="height:calc(100% - 44px);">
+                <div class="container-fluid inner-container" style="height:100%;">
+                    <div class="main-row" style="height:100%;overflow:hidden;">
+                        <div class="inbox-header">
+                            Inbox
+                        </div>
+                        <div class="conversations-container box-shadow-apply" style="height: calc(100% - 35px);">
+                            <div class="conversations-scroll">
+                                @if(conversations.nonEmpty) {
+                                    @if(conversations.head.user1Id == user.userId.get) {
+                                        @components.conversation_box(User.find(conversations.head.user2Id).get, conversations.head.preview, conversations.head.read != 0 || conversations.head.lastUser == 1, conversations.head.conversationId.get, active = true)
+                                    } else {
+                                        @components.conversation_box(User.find(conversations.head.user1Id).get, conversations.head.preview, conversations.head.read != 0 || conversations.head.lastUser == 2, conversations.head.conversationId.get, active = true)
+                                    }
+
+                                    @for(c <- conversations.tail) {
+                                        @if(c.user1Id == user.userId.get) {
+                                            @components.conversation_box(User.find(c.user2Id).get, c.preview, c.read != 0 || c.lastUser == 1, c.conversationId.get)
+                                        } else {
+                                            @components.conversation_box(User.find(c.user2Id).get, c.preview, c.read != 0 || c.lastUser == 2, c.conversationId.get)
+                                        }
+                                    }
+                                } else {
+                                    <div class="no-conversations">
+                                        No conversations to show...
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                        <div class="messages-container box-shadow-apply" style="height: calc(100% - 35px);">
+                            @if(conversations.nonEmpty) {
+                                @Conversation.read(conversations.head, user.userId.get)
+                                @defining(Message.byConversation(conversations.head.conversationId.get)) { m =>
+                                    @if(conversations.head.user1Id == user.userId.get) {
+                                        @components.messages(m, conversations.head.conversationId.get, User.find(conversations.head.user1Id).get, User.find(conversations.head.user2Id).get)
+                                    } else {
+                                        @components.messages(m, conversations.head.conversationId.get, User.find(conversations.head.user2Id).get, User.find(conversations.head.user1Id).get)
+                                    }
+                                }
+                            } else {
+                                <div class="no-messages">
+                                    No messages...
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+}

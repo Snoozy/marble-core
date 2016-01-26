@@ -1,0 +1,71 @@
+@(user: User, error: String = "", name: String = "", descr: String ="")
+
+@import com.marble.core.web.views.html.desktop.components
+
+@components.base("Create a board | Marble") {
+    <script type="text/javascript" charset="utf-8">
+        $(document).ready(function(){
+
+            $('.btn.create-board').click(function(event) {
+                event.preventDefault();
+                if ($(this).hasClass('disabled'))
+                    return false;
+                if ($('.name-input').val() === "")
+                    return false;
+                $('form').submit();
+            });
+
+        });
+    </script>
+
+} {
+    <body class="main-background">
+        @components.masthead(Some(user), searchBar = true)()
+        <div class="page-container">
+            <div class="register-container" style="width:550px;">
+                <div class="register-inner">
+                    <div class="register-header">
+                        <span class="register-text">
+                            Create a Board
+                        </span>
+                    </div>
+                    @if(error != "") {
+                        <div class="error-message">@error</div>
+                    }
+                    <form role="form" method="post" action="/boards/create">
+                        <div class="form-board">
+                            <input type="text" class="form-control" id="nameInput" name="name" value="@name" placeholder="Board Name" required>
+                            <p class="help-block">Unique name that identifies your board.</p>
+                        </div>
+                        <div class="form-board">
+                            <input type="text" class="form-control" id="descrInput" name="description" value="@descr" placeholder="Board Description" required>
+                            <p class="help-block">Describe your board.</p>
+                        </div>
+                        <div class="board-type-header">
+                            <strong>Board type</strong>
+                        </div>
+                        <div class="board-type radio">
+                            <label>
+                                <input type="radio" name="board-type" value="public" checked>
+                                <p style="margin-bottom:0;"><strong>Public</strong></p>
+                                <p>Anyone can see and follow this board.</p>
+                            </label>
+                        </div>
+                        @*
+                        <div class="board-type radio">
+                            <label>
+                                <input type="radio" name="board-type" value="anonymous">
+                                <p style="margin-bottom:0;"><strong>Anonymous</strong></p>
+                                <p style="width:330px;">Anyone can see and follow this board, but posts are anonymous, and no reputation will be awarded.</p>
+                            </label>
+                        </div>
+                        *@
+                        <div class="register-form-button">
+                            <button type="submit" class="btn btn-primary create-board-btn" style="width:130px;">Create Board</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </body>
+}

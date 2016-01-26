@@ -1,0 +1,252 @@
+@(boards: Map[String, Seq[Int]], featured: Seq[Int])
+
+@import com.marble.core.web.views.html.desktop.components
+@import com.marble.core.data.db.models._
+@import com.marble.utils.Etc; var carouselId = 0;
+
+@components.base("Welcome to Marble"){
+    <style>
+        .follow-btn {
+            padding: 4px 6px;
+            font-size: 14px;
+            font-weight: bold;
+            width: 175px;
+            height: 32px;
+        }
+
+        .btn-text {
+            font-size: 14px;
+        }
+
+        .trending-group-header {
+            width: 130px;
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .trending-group-descr-content {
+            font-size: 15px;
+        }
+
+        .trending-group-descr {
+            margin-top: 0;
+        }
+
+        .trending-group-bottom {
+            height: 93px;
+            padding-bottom:0;
+        }
+
+        .trending-group-name {
+            font-size: 18px;
+        }
+
+        .follow-container {
+            padding-bottom: 15px;
+            text-align:center;
+        }
+
+        .notfollowing .unfollow-text {
+            display: none;
+        }
+    </style>
+}{
+    <body class="main-background">
+        @components.masthead(None, small = true)()
+        <div class="outside-box">
+            <div class="inside-box">
+                <div class="box-header">
+                    Welcome. <span class="box-subheader">Let me help you get started.</span>
+                </div>
+
+                <div class="main-body">
+                    <div class="body-header">
+                        Join some boards you are interested in:
+                    </div>
+
+                    <div class="group-category" style="position: relative;">
+                        <div class="category-header">
+                        Featured
+                        </div>
+
+                        <div id="carousel@carouselId" class="carousel">
+                            <ul>
+                            @for(g <- featured) {
+                                @defining(Board.find(g)) { b =>
+                                    @if(b.isDefined) {
+                                        <li>
+                                            <div class="trending-group-wrapper" style="margin-left:15px;margin-right:15px;">
+                                                <div class="trending-group-content" style="opacity:1;">
+                                                    <div class="trending-group-avatar">
+                                                        <a href="/@b.get.name" target="_blank">
+                                                            <img class="trending-group-avatar" src="@(b.get.photo + "_prof")">
+                                                        </a>
+                                                    </div>
+                                                    <div class="trending-group-bottom">
+                                                        <div class="trending-group-header">
+                                                            <a href="/@b.get.name" target="_blank">
+                                                                <span class="trending-group-name">
+                                                                @b.get.name
+                                                                </span>
+                                                            </a>
+                                                        </div>
+                                                        <div class="trending-group-descr">
+                                                            <span class="trending-group-descr-content">
+                                                            @Etc.ellipsize(b.get.description, 60)
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="follow-container">
+                                                        <button class="btn btn-default follow-btn notfollowing" data-group-id="@b.get.boardId.get">
+                                                            <span class="btn-text follow-text">Join</span>
+                                                            <span class="btn-text following-text">Joined</span>
+                                                            <span class="btn-text unfollow-text">Leave</span>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </li>
+                                    }
+                                }
+                            }
+                            </ul>
+                        </div>
+
+                        <a href="#" id="carousel@carouselId-control-prev" class="carousel-control-prev">&lsaquo;</a>
+                        <a href="#" id="carousel@carouselId-control-next" class="carousel-control-next">&rsaquo;</a>
+                    </div>
+                    @(carouselId = carouselId + 1)
+
+                    @for((key, value) <- boards) {
+                        <div class="group-category" style="position: relative;">
+                            <div class="category-header">
+                                @key
+                            </div>
+
+                            <div id="carousel@carouselId" class="carousel">
+                                <ul>
+                                    @for(g <- value) {
+                                        @defining(Board.find(g)) { b =>
+                                            @if(b.isDefined) {
+                                                <li>
+                                                    <div class="trending-group-wrapper" style="margin-left:15px;margin-right:15px;">
+                                                        <div class="trending-group-content" style="opacity:1;">
+                                                            <div class="trending-group-avatar">
+                                                                <a href="/@b.get.name" target="_blank">
+                                                                    <img class="trending-group-avatar" src="@b.get.photo">
+                                                                </a>
+                                                            </div>
+                                                            <div class="trending-group-bottom">
+                                                                <div class="trending-group-header">
+                                                                    <a href="/@b.get.name" target="_blank">
+                                                                        <span class="trending-group-name">
+                                                                            @b.get.name
+                                                                        </span>
+                                                                    </a>
+                                                                </div>
+                                                                <div class="trending-group-descr">
+                                                                    <span class="trending-group-descr-content">
+                                                                    @Etc.ellipsize(b.get.description, 60)
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                            <div class="follow-container">
+                                                                <button class="btn btn-default follow-btn notfollowing" data-group-id="@b.get.boardId.get">
+                                                                    <span class="btn-text follow-text">Join</span>
+                                                                    <span class="btn-text following-text">Joined</span>
+                                                                    <span class="btn-text unfollow-text">Leave</span>
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </li>
+                                            }
+                                        }
+                                    }
+                                </ul>
+                            </div>
+
+                            <a href="#" id="carousel@carouselId-control-prev" class="carousel-control-prev">&lsaquo;</a>
+                            <a href="#" id="carousel@carouselId-control-next" class="carousel-control-next">&rsaquo;</a>
+                        </div>
+                        @(carouselId = carouselId + 1)
+                    }
+
+                </div>
+                <div class="next-container" style="text-align:right;margin-top:15px;">
+                    <a href="#" class="btn btn-primary cont-btn">Continue</a>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $(function() {
+
+                var index = 0;
+
+                $('.carousel').each(function() {
+
+                    var carousel_id = '#carousel' + index;
+
+                    $(carousel_id).jcarousel({
+                        wrap: 'circular'
+                    });
+
+                    $(carousel_id + '-control-prev').click(function(e) {
+                        $(carousel_id).jcarousel('scroll', '-=2');
+                        return false;
+                    });
+
+                    $(carousel_id + '-control-next').click(function(e) {
+                        $(carousel_id).jcarousel('scroll', '+=2');
+                        return false;
+                    });
+
+                    index++;
+                });
+
+                var follow = [];
+
+                $(document).on('click', '.notfollowing', function(e) {
+                    var group_id = $(this).data('group-id');
+                    var $this = $(this);
+                    $.ajax({
+                        url: '/a/group/' + group_id + '/follow',
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function() {
+                            $this.addClass('following');
+                            $this.removeClass('notfollowing');
+                        }
+                    });
+
+                    return false;
+                });
+
+                $(document).on('click', '.following', function() {
+                    var group_id = $(this).data('group-id');
+                    var $this = $(this);
+                    $.ajax({
+                        url: '/a/group/' + group_id + '/unfollow',
+                        type: 'POST',
+                        dataType: 'json',
+                        success: function() {
+                            $this.addClass('notfollowing');
+                            $this.removeClass('following');
+                        }
+                    });
+                    return false;
+                });
+
+                $('.cont-btn').click(function(e) {
+                    e.preventDefault();
+                    window.location.href = "/gettingstarted";
+                });
+
+            });
+        </script>
+
+    </body>
+}
+

@@ -1,0 +1,101 @@
+@(user: Option[User], boards: Seq[Board], users: Seq[User], query: String)
+
+@import com.marble.core.web.views.html.desktop.components
+@import com.marble.utils.Etc
+
+@components.base(query + " - Search Marble"){
+
+}{
+    <body class="main-background@if(!user.isDefined){ logged-out}">
+        <div class="page" style="margin:0px;">
+            @components.masthead(user, searchBar = true, searchQuery = query)()
+            <div id="content">
+                <div class="container-fluid inner-container" style="width:870px;">
+                    <div class="main-row search-row" style="margin-right: 13px;">
+                        <div class="big-container box-shadow-apply">
+                            <h2 class="search-header">
+                                Board results for <span class="search-query-text">@query</span>
+                            </h2>
+                            <div class="search-content">
+                                <ol class="search-boards-container">
+                                    @if(boards.nonEmpty) {
+                                        @for(b <- boards) {
+                                            <div class="board-wrapper">
+                                                <a href="/@b.name" class="no-dec" style="display:inline;color:#000000;">
+                                                    <div class="board search-entity" style="cursor:pointer;margin-left:69px;margin-right:30px;">
+                                                        <img class="avatar search" style="margin-left:-63px;margin-right:0px;" alt="Board Picture" src="@b.photo">
+                                                        <div class="board-desc-wrapper">
+                                                            <span class="follower-count">
+                                                                @b.followers Follower@if(b.followers != 1){s}
+                                                            </span>
+                                                            <span class="entity-name">
+                                                                <strong style="font-size:16px;" class="search-board-name-text">@b.name</strong>
+                                                            </span>
+                                                            <p class="description" style="word-wrap:break-word;margin-top:-4px;line-height:1.4;margin-right:7px;">
+                                                                @Etc.ellipsize(b.description, 80)
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        }
+                                    } else {
+                                        <div class="no-results-search">
+                                            No board results for <span class="search-query-text">@query</span>
+                                        </div>
+                                    }
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="main-row search-row" style="">
+                        <div class="big-container box-shadow-apply">
+                            <h2 class="search-header">
+                                User results for <span class="search-query-text">@query</span>
+                            </h2>
+                            <div class="search-content">
+                                <ol class="search-boards-container">
+                                @if(users.nonEmpty) {
+                                    @for(u <- users) {
+                                        <div class="board-wrapper">
+                                            <a href="/user/@u.username" class="no-dec" style="display:inline;color:#000000">
+                                                <div class="board search-entity" style="cursor:pointer;margin-left:69px;margin-right:30px;">
+                                                    <img class="avatar search" style="margin-left:-63px;margin-right:0px;" alt="Board Picture" src="@u.photo">
+                                                    <div class="board-desc-wrapper">
+                                                        <span class="follower-count">
+                                                            @u.reputation <span class="stat" style="margin-right:0;font-size:11px;">rep</span>
+                                                        </span>
+                                                        <div class="entity-wrapper">
+                                                            <span class="entity-text">
+                                                                <strong style="font-size:16px;" class="search-board-name-text">@u.name</strong>
+                                                            </span>
+                                                            <span class="username-text">
+                                                            @@@u.username
+                                                            </span>
+                                                        </div>
+                                                        <p class="description" style="word-wrap:break-word;margin-top:-4px;line-height:1.4;margin-right:7px;">
+                                                            @if(u.bio.length > 0) {
+                                                                @Etc.ellipsize(u.bio, 80)
+                                                            } else {
+                                                                @u.name does not have a bio.
+                                                            }
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                            </a>
+                                        </div>
+                                    }
+                                } else {
+                                    <div class="no-results-search">
+                                        No user results for <span class="search-query-text">@query</span>
+                                    </div>
+                                }
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+}

@@ -1,0 +1,80 @@
+@(posts: Seq[Post], user: User, boards: Seq[Board])(recommended: Seq[Board] = Board.getRecommended(user.userId.get))
+
+@import com.marble.core.web.views.html.desktop.components
+
+@components.base("Marble") {
+
+}{
+    <body class="main-background context-home">
+        <div class="page" style="margin: 0px;">
+            @components.masthead(Some(user), searchBar = true)()
+            <div id="content">
+                <div class="container-fluid inner-container">
+                    <div class="main-row">
+                        <div class="posts-container" style="display:inline-block;margin-right:10px;width:610px;padding:0px;">
+                            <div class="posts-wrapper" style="text-align:left;">
+                                <ol class="posts">
+                                        @components.first_post(user, boards)
+
+                                        @for(post <- posts) {
+                                            @defining(boards.find(b => b.boardId.get == post.boardId)) { b =>
+                                                @if(b.isEmpty) {
+                                                    @components.post(post, Some(user))()
+                                                } else {
+                                                    @components.post(post, Some(user))(board = b.get)
+                                                }
+                                            }
+                                        }
+
+                                </ol>
+                                <div @if(posts.length < 19){class="displaynone" }id="neverending_spinner"></div>
+                            </div>
+                        </div>
+                        <div class="column2" style="margin-top:0;display:inline-block;vertical-align:top;width:250px;">
+                            <div class="recommended-container box-shadow-apply" style="background-color:#fdfdfd;margin-bottom:10px;">
+                                <div class="small-board-header">
+                                    <b style="font-size:16px;">Recommended</b>
+                                </div>
+                                @for(b <- recommended) {
+                                    @components.small_board(b)
+                                }
+                                <div class="small-board-container" style="padding-bottom:0;">
+                                    <a href="/boards/explore" class="no-dec small-board-anchor">
+                                        <div class="explore-boards">
+                                            Explore all of Marble
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="boards-container box-shadow-apply" style="background-color:#fdfdfd;">
+                                <div class="small-board-header">
+                                    <b style="font-size:16px;">My Boards</b>
+                                    <div class="create-board">
+                                        <a class="create-board-anchor" href="/boards/create" data-placement="top" title="Create a Board">
+                                            <span class="glyphicon glyphicon-plus" style="color:#333;"></span>
+                                        </a>
+                                    </div>
+                                </div>
+                                @if(boards.nonEmpty) {
+                                    @for(b <- boards) {
+                                        @components.small_board(b)
+                                    }
+                                } else {
+                                    <div class="no-boards">
+                                        You are not following any boards.
+                                    </div>
+                                }
+                            </div>
+                            @components.footer()
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @components.repost_modal(boards)
+
+        @components.fb_init()
+
+    </body>
+}

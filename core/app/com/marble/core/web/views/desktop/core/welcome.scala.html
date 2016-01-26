@@ -1,0 +1,135 @@
+@(boards: Seq[Board], posts: Seq[Post] = Post.getTrendingPosts)
+
+@import com.marble.core.web.views.html.desktop.components
+
+@components.base("Welcome to Marble - Login or Sign Up") {
+
+    <meta property="description" name="description" content="Marble is a discovery tool that you can use to find communities you love.">
+    <meta property="og:description" name="og:description" content="Marble is a discovery tool that you can use to find communities you love.">
+    <meta property="og:image" name="og:image" content="https://static.themarble.co/marble-logo-gray.png">
+    <meta property="og:title" name="og:title" content="Marble">
+    <meta property="og:type" name="og:type" content="website">
+    <meta property="og:url" name="og:url" content="https://www.marble.co">
+
+
+    <script type="text/javascript" charset="utf-8">
+        //IE detection
+        var ie = (function(){
+
+        var undef,
+        v = 3,
+        div = document.createElement('div'),
+        all = div.getElementsByTagName('i');
+
+        while (
+            div.innerHTML = '<!--[if gt IE ' + (++v) + ']><i></i><![endif]-->',
+            all[0]
+        );
+
+        return v > 4 ? v : undef;
+
+        }())
+    </script>
+
+    <style>
+    .container {
+    box-shadow: 4px 4px 9px rgba(0,0,0,0.2);;
+    -moz-box-shadow: 4px 4px 9px rgba(0,0,0,0.2);;
+    -webkit-box-shadow: 4px 4px 9px rgba(0,0,0,0.2);;
+    }
+    .trending-group-descr {
+    color: black;
+    }
+    .main-welcome {
+
+    }
+    </style>
+
+    <script type="text/javascript">
+        $(window).load(function() {
+
+            if (ie < 9) {
+                $('.modal').appendTo($('body'));
+                $( "#modal" ).modal('show');
+            }
+        });
+    </script>
+
+    @components.fb_init()
+
+    <script>
+        $(function() {
+
+            var $ribbon = $('.welcome-ribbon');
+            $(window).scroll(function() {
+                var height = $(this).scrollTop();
+                if (height > 50) {
+                    $ribbon.addClass('fixed');
+                } else {
+                    $ribbon.removeClass('fixed');
+                }
+            });
+
+        });
+    </script>
+
+} {
+
+    <body class="main-background logged-out" style="margin:0">
+            <!----Page Start---->
+        <div class="page" style="min-width: 800px;">
+            @components.welcome_masthead()
+            <div class="welcome-ribbon">
+                <div class="welcome-descr">
+                    Marble is a community platform.
+                    <div class="welcome-descr-small">
+                        Find communities for interests you love.
+                    </div>
+                </div>
+                <div class="welcome-btns">
+                    <a href="/signup" class="signup-button btn btn-primary">
+                        Sign up »
+                    </a>
+                    <a href="/login" class="login-button btn btn-default">
+                        Login
+                    </a>
+                </div>
+            </div>
+            <div class="trending-topics-container" style="margin-top:80px;">
+                <div class="trending-topics-wrapper">
+                    <div class="trending-topics-inner">
+                        <div class="trending-topics-content">
+                            <div class="trending-topics-centering">
+                            @for(post <- posts) {
+                                @components.post(post, None)(timestamp = false)
+                            }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @components.footer()
+            <div style="margin-top: 10px;"></div>
+        </div>
+        <div class="modal hide fade displaynone" id="modal" style="top:50%;">
+            <div class="modal-header" style="text-align:center;">
+                <button class="close" data-dismiss="modal">x</button>
+                <h3>Oh No!</h3>
+            </div>
+            <div class="modal-body">
+                <p class="ie-error-text">Your version of Internet Explorer is no longer supported! Not only will you not be able to enjoy Marble, but many other sites such as Gmail, Facebook and Twitter do not work well with your version of Internet Explorer. You can:
+                </p>
+                <div class="upgrade ie-upgrade pull-right"><a href="http://windows.microsoft.com/en-us/internet-explorer/downloads/ie-10/worldwide-languages"><img src="https://static.themarble.co/ie10.jpeg" style="height: 90px; width: 90px;" height="90" width="90"></a><br>
+                    Upgrade to IE 10
+                </div>
+                <div class="upgrade chrome pull-right"><a href="https://www.google.com/intl/en/chrome/browser/"><img src="https://static.themarble.co/chrome.jpeg" height="90" width="90" style="height: 90px; width: 90px;"></a><br>
+                    Download Chrome
+                </div>
+                <div class="upgrade firefox pull-right"><a href="http://www.mozilla.org/en-US/firefox/new/"><img src="https://static.themarble.co/firefox2.jpeg" height="90" width="90" style="height: 90px; width: 90px;"></a><br>
+                    Download Firefox
+                </div>
+            </div>
+        </div>
+        @components.logged_out()
+    </body>
+}

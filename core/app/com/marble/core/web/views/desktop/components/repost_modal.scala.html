@@ -1,0 +1,30 @@
+@(boards: Seq[Board])
+
+<div class="modal fade in" id="repost-modal" tabindex="-1" role="dialog" aria-labelledby="repost-modal" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="repost-modal-label" style="text-align: center;">Repost</h4>
+            </div>
+            <div class="modal-body">
+                <div class="repost-comment-container">
+                    <textarea data-expanded-height="80" class="repost-comment-input form-control" placeholder="Say something about this post..."></textarea>
+                </div>
+                <div class="repost-post-container"></div>
+            </div>
+            <div class="modal-footer">
+                <div class="modal-post-board-wrapper">
+                    <span class="modal-post-board-text" style="float:left;">on Board:</span>
+                    <select class="chosen-select post-board form-control" id="repost-board-select" data-placeholder="Select a Board" style="float:none;">
+                        <option></option>
+                        @for(b <- boards) {
+                            <option value="@(b.photo + "_prof")">@b.name</option>
+                        }
+                    </select>
+                </div>
+                <button type="button" class="btn btn-primary repost-submit-button">Repost</button>
+            </div>
+        </div>
+    </div>
+</div>

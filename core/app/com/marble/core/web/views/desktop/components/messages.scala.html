@@ -1,0 +1,19 @@
+@(messages: Seq[Message],id: Int, me: User, other: User)
+
+@import com.marble.core.web.views.html.desktop.components
+
+<div class="messages-header">
+    <a href="/user/@other.username">
+        <strong style="font-size:16px;">@other.name</strong>
+    </a>
+</div>
+<div class="messages-inner">
+    <div class="messages-wrapper" data-conversation-id="@id">
+        @for(m <- messages) {
+            @components.message(m.content, m.userId == me.userId.get, m.messageId.get)
+        }
+    </div>
+</div>
+<div class="message-create" data-to="@other.userId.get">
+    <textarea class="new-message-content form-control" rows="1" style="width: 100%;" placeholder="Send a message..."></textarea>
+</div>

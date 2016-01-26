@@ -1,0 +1,9 @@
+@(content: String, self: Boolean, id: Int)
+
+@import com.marble.utils.Etc
+
+<div class="message-content @if(self){right}else{left}" data-message-id="@id">
+    <div class="message-text">
+        @Html(Etc.parseMessage(content))
+    </div>
+</div>

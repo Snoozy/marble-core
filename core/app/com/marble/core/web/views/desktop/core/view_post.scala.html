@@ -1,0 +1,70 @@
+@(user: Option[User], post: Post, singleComment: Option[Comment] = None)(poster: Option[User] = User.find(post.userId),
+        board: Option[Board] = Board.find(post.boardId),
+        repost: Option[Post] = post.repostId.flatMap(Post.find),
+        media: Seq[Option[Media]] = post.media.map(m => Media.find(m)))
+
+@import com.marble.core.web.views.html.desktop.components
+@import com.marble.core.web.controllers.RemoteURLController
+@import com.marble.core.data.db.models._
+@import com.marble.utils.Etc
+
+@components.base(if(post.title.isDefined){post.title.get}else{poster.get.name + "'s post on " + board.get.name}) {
+    <style>
+        .comment-children-container {
+            border-top: 1px solid #e1e8ed;
+        }
+    </style>
+
+    <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# marbleapp: http://ogp.me/ns/fb/marbleapp#">
+
+    <meta property="og:url" content="https://www.marble.co/@board.get.name/posts/@post.postId.get" />
+    <meta property="fb:app_id" content="911323222224791" />
+    <meta property="og:type"   content="marbleapp:post" />
+    <meta property="og:site_name" content="Marble" />
+    @if(repost.isEmpty) {
+        @if(post.title.isDefined) {
+            <meta property="og:title" content="@post.title.get" />
+        } else {
+            <meta property="og:title" content="@poster.get.name's post on @board.get.name" />
+        }
+        <meta property="og:description" content="@Etc.ellipsize(post.data, 300)">
+    } else {
+        @if(repost.get.title.isDefined) {
+            <meta property="og:title" content="@repost.get.title.get" />
+        } else {
+            <meta property="og:title" content="@poster.get.name's post on @board.get.name" />
+        }
+        <meta property="og:description" content="@Etc.ellipsize(repost.get.data, 300)">
+    }
+    @if(media.nonEmpty) {
+        <meta property="og:image" content="@media.head.get.mediaUrl" />
+    } else {
+        <meta property="og:image" content="@board.get.photo" />
+    }
+
+} {
+    <body class="single-post main-background@if(user.isEmpty){ logged-out}">
+        <div class="page" style="margin:0px;">
+            @components.masthead(user, searchBar = true)()
+            <div id="content">
+                <div class="container-fluid inner-background" style="width: 900px;">
+                    @if(user.isEmpty) {
+                        @components.convince_signup(board.get)
+                    }
+                    <div class="main-row">
+                        @components.post(post, user, singleComment = singleComment)(expanded = true, board = board.get, poster = poster.get, repost = repost)
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if(user.isDefined) {
+            @components.repost_modal(User.getBoards(user.get.userId.get))
+        } else {
+            @components.logged_out()
+        }
+
+        @components.fb_init()
+
+    </body>
+}

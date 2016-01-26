@@ -1,0 +1,144 @@
+@(user: User, visitor: Option[User], posts: Seq[Post],
+        comments: Seq[Comment], boards: Seq[Board], postsCount: Int)
+
+@import com.marble.utils.Etc
+@import com.marble.core.data.db.models._
+@import com.marble.core.web.views.html.desktop.components
+
+@components.base(user.name + " | Marble") {
+
+} {
+    <body class="main-background context-user@if(visitor.isEmpty){ logged-out}" data-user-id="@user.userId.get">
+        <div class="page" style="margin:0;">
+            @components.masthead(visitor, searchBar = true)()
+            <div id="content">
+                <div class="container-fluid inner-container">
+                    <div class="main-row">
+                        <div class="big-container box-shadow-apply">
+                            @if(visitor.isDefined && visitor.get.userId.get != user.userId.get) {
+                                <div class="user-message-wrapper">
+                                    <button class="btn btn-default user-msg">
+                                        <span class="glyphicon glyphicon-envelope" style="color:black;"> </span>
+                                        Message
+                                    </button>
+                                </div>
+                            }
+                            <div class="board-info">
+                                <div class="board-data-container">
+                                    <div class="board-avatar">
+                                        <a class="fluidbox" href="@user.photo">
+                                            <img src="@(user.photo + "_prof")" class="board-avatar-img">
+                                        </a>
+                                        @if(visitor.isDefined && user.userId.get == visitor.get.userId.get) {
+                                            <div class="profile-pic-selector">
+                                                <a class="profile-pic-change" href="/settings">
+                                                    <i class="glyphicon glyphicon-camera profile-pic-camera"></i>
+                                                    <div class="profile-pic-change-text">
+                                                        Update profile picture
+                                                    </div>
+                                                </a>
+                                            </div>
+                                        }
+                                    </div>
+                                    <div class="board-name-container">
+                                        <span class="main-board-name-text">
+                                            @user.name
+                                        </span>
+                                        <span class="main-board-username-text">
+                                            @@@user.username
+                                        </span>
+                                    </div>
+                                    <div class="board-descr-container">
+                                        <span class="board-descr-text">
+                                            @if(user.bio.length > 0) {
+                                                @user.bio
+                                            } else {
+                                                @Etc.parseFirstName(user.name) does not have a bio.
+                                            }
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="stats-container">
+                                    <div class="stat reputation">
+                                        <span class="stat-number">
+                                            @user.reputation
+                                        </span>
+                                        Reputation
+                                    </div>
+                                    <div class="stat boards">
+                                        <span class="stat-number">
+                                            @boards.size
+                                        </span>
+                                        Board@if(boards.size != 1){s}
+                                    </div>
+                                    <div class="stat posts">
+                                        <span class="stat-number">
+                                            @postsCount
+                                        </span>
+                                        Post@if(postsCount != 1){s}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="board-posts-container">
+                            <div class="posts-container" style="display:inline-block;margin-right:10px;width:606px;padding:0px;">
+                                <div class="posts-wrapper" style="text-align:left;">
+                                    <ol class="posts">
+                                        @for(post <- posts) {
+                                            @defining(Board.find(post.boardId)) { b =>
+                                                @if(b.get.privacy != 1) {
+                                                    @components.post(post, visitor)(board = b.get)
+                                                }
+                                            }
+                                        }
+
+                                        @if(posts.length < 1) {
+                                            @components.no_posts()
+                                        }
+                                    </ol>
+                                    <div @if(posts.length < 19){class="displaynone" }id="neverending_spinner"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column2">
+                            <div class="board-related-boards-container box-shadow-apply">
+                                <div class="small-board-header">
+                                    <b style="font-size:16px;">Following</b>
+                                </div>
+                                @if(boards.nonEmpty) {
+                                    @for(b <- boards) {
+                                        @components.small_board(b)
+                                    }
+                                } else {
+                                    <div class="no-boards">
+                                        No boards.
+                                    </div>
+                                }
+                            </div>
+                            @components.footer()
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        @if(visitor.isDefined) {
+            @components.repost_modal(User.getBoards(visitor.get.userId.get))
+        } else {
+            @components.logged_out()
+        }
+
+        @components.fb_init()
+
+        <script>
+            $(function() {
+
+            });
+        </script>
+
+        @if(visitor.isDefined && visitor.get.userId.get != user.userId.get) {
+            @components.message_modal(user)
+        }
+
+    </body>
+}

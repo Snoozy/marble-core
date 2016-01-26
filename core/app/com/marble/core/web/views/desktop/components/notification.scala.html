@@ -1,0 +1,31 @@
+@(notification: Notification)(details: (String, String) = Notification.getDetails(notification))
+
+@import com.marble.core.data.db.models.Enum.EntityType
+@import com.marble.core.data.db.models.Enum.ActionType
+@import com.marble.utils.Etc
+
+@defining(User.find(notification.titleUser)) { user =>
+    <a href="@details._1" class="notification-redirect no-dec" style="color: inherit;">
+        <div class="masthead-notification@if(!notification.read){ unread}">
+            <img class="avatar" style="margin-left:-58px;margin-right:7px;height:50px;width:50px;margin-top:0;border-radius:4px;" alt="User Picture" src="@(user.get.photo + "_small")">
+            <div class="notification-desc-wrapper">
+                <span class="notification-user-text">@user.get.name</span> @if(notification.count > 99) {and 99+ others} else {@if(notification.count > 0) {and @notification.count others}}
+                @if(notification.actionType == ActionType.Vote) {upvoted} else {replied to}
+                one of your @if(notification.entityType == EntityType.Post){posts} else {comments}@if(details._2.length > 0){:} else {.}
+                @if(details._2.length > 0) {
+                    <div class="notification-preview">@Etc.ellipsize(details._2, 35)</div>
+                }
+                <div class="notification-desc">
+                    @if(notification.actionType == ActionType.Vote) {
+                        <i class="icon-upvote icon-green-upvote" style="height:13px;"></i>
+                    } else {
+                        <i class="icon-comments-alt"></i>
+                    }
+                    <span class="notification-timestamp">
+                        @Etc.convertEpochToTimestamp(notification.time)
+                    </span>
+                </div>
+            </div>
+        </div>
+    </a>
+}
