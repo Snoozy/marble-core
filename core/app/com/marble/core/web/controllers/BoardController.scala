@@ -11,7 +11,7 @@ import play.api.libs.json.Json
 
 class BoardController @Inject() (auth: Auth) extends Controller {
 
-    def boardPage(name: String) = AuthAction { implicit user => implicit request =>
+    def boardPage(name: String) = auth.AuthAction { implicit user => implicit request =>
         val board = Board.find(name)
         if (board.isDefined) {
             if (name != board.get.name) {
@@ -31,7 +31,7 @@ class BoardController @Inject() (auth: Auth) extends Controller {
         }
     }
 
-    def followBoard(boardId: Int) = AuthAction { implicit user => implicit request =>
+    def followBoard(boardId: Int) = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => BadRequest(Json.obj("error" -> "User authentication required."))
             case Some(_) =>
@@ -53,7 +53,7 @@ class BoardController @Inject() (auth: Auth) extends Controller {
         }
     }
 
-    def unfollowBoard(boardId: Int) = AuthAction { implicit user => implicit request =>
+    def unfollowBoard(boardId: Int) = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => BadRequest(Json.obj("error" -> "User authentication required."))
             case Some(_) =>
@@ -75,7 +75,7 @@ class BoardController @Inject() (auth: Auth) extends Controller {
         }
     }
 
-    def createBoardPage = AuthAction { implicit user => implicit request =>
+    def createBoardPage = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => Redirect("/")
             case Some(_) => Ok(core.create_board(user.get))
@@ -84,7 +84,7 @@ class BoardController @Inject() (auth: Auth) extends Controller {
 
     val whiteSpace = Pattern.compile("\\s")
 
-    def attemptCreateBoard = AuthAction { implicit user => implicit request =>
+    def attemptCreateBoard = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => Redirect("/")
             case Some(_) =>
@@ -124,7 +124,7 @@ class BoardController @Inject() (auth: Auth) extends Controller {
         }
     }
 
-    def deleteBoard(boardName: String) = AuthAction { implicit user => implicit request =>
+    def deleteBoard(boardName: String) = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => BadRequest(Json.obj("error" -> "User must be authenticated."))
             case Some(_) =>

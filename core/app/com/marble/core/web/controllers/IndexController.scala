@@ -9,7 +9,7 @@ import play.api.mvc._
 
 class IndexController @Inject() (auth: Auth, cache: Cache) extends Controller {
 
-    def homePage = AuthAction { implicit user => implicit request =>
+    def homePage = auth.AuthAction { implicit user => implicit request =>
         user match {
             case Some(_) =>
                 if (user.get.session.isDefined && user.get.session.get.get("getting_started").isDefined) {

@@ -16,7 +16,7 @@ class VoteController @Inject() (auth: Auth) extends Controller {
 
     def downvoteComment(commentId: Int) = voteComment(commentId, -1)
 
-    private def votePost(postId: Int, value: Int) = AuthAction { implicit user => implicit request =>
+    private def votePost(postId: Int, value: Int) = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => BadRequest(Json.obj("error" -> "User must be authenticated"))
             case Some(_) =>
@@ -29,7 +29,7 @@ class VoteController @Inject() (auth: Auth) extends Controller {
         }
     }
 
-    private def voteComment(commentId: Int, value: Int) = AuthAction { implicit user => implicit request =>
+    private def voteComment(commentId: Int, value: Int) = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => BadRequest(Json.obj("error" -> "User must be authenticated"))
             case Some(_) =>

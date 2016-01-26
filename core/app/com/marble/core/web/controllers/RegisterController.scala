@@ -1,6 +1,7 @@
 package com.marble.core.web.controllers
 
 import com.google.inject.Inject
+import com.marble.core.data.cache._
 import com.marble.core.data.cache
 import com.marble.core.data.db.models._
 import com.marble.core.email._
@@ -10,13 +11,13 @@ import play.Play
 import play.api.mvc._
 import scala.concurrent.ExecutionContext.Implicits.global
 
-class RegisterController @Inject() (auth: Auth) extends Controller {
+class RegisterController @Inject() (auth: Auth, c: Cache) extends Controller {
 
-    def cleanRegisterPage = AuthAction { implicit user => implicit request =>
+    def cleanRegisterPage = auth.AuthAction { implicit user => implicit request =>
         Ok(com.marble.core.web.views.html.desktop.core.register())
     }
 
-    def attemptRegister = AuthAction { implicit user => implicit request =>
+    def attemptRegister = auth.AuthAction { implicit user => implicit request =>
         user match {
             case Some(_) => Redirect("/")
             case None =>
@@ -33,17 +34,17 @@ class RegisterController @Inject() (auth: Auth) extends Controller {
             if (email.isDefined && name.isDefined && password.isDefined) {
                 val userExists = User.findByEmail(email.get)
                 if (userExists.isDefined && Etc.checkPass(password.get, userExists.get.password))
-                    Found("/").withCookies(Auth.newSessionCookies(userExists.get.userId.get))
+                    Found("/").withCookies(auth.newSessionCookies(userExists.get.userId.get))
                 val newUser = User.create(User.genUsername(email.get, backup = name.get.replace(" ", "")), name.get, password.get, email.get, None)
                 if (newUser.isDefined) {
-                    val token = Auth.getNewUserSessionId(User.find(newUser.get.toInt).getOrElse(return BadRequest("Error.")).userId.get)
-                    val sess = new cache.Session(token)
+                    val token = auth.getNewUserSessionId(User.find(newUser.get.toInt).getOrElse(return BadRequest("Error.")).userId.get)
+                    val sess = new cache.Session(c)(token)
                     sess.set("getting_started", "true")
                     val firstName = Etc.parseFirstName(name.get)
                     if (Play.isProd) {
                         sendWelcomeEmail(firstName, email.get)
                     }
-                    Found("/").withCookies(Auth.newSessionCookies(token))
+                    Found("/").withCookies(auth.newSessionCookies(token))
                 }
                 else
                     BadRequest("Error: user creation failed.")

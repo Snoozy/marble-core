@@ -1,6 +1,7 @@
 package com.marble.core.web.controllers
 
 import com.google.inject.Inject
+import com.marble.core.data.cache.Cache
 import com.marble.core.config.FacebookConfig
 import com.marble.core.data.cache.Session
 import com.marble.core.data.db.models._
@@ -9,9 +10,9 @@ import com.marble.core.social.FB
 import com.marble.core.data.aws.S3
 import play.api.mvc._
 
-class SocialController @Inject() (auth: Auth) extends Controller {
+class SocialController @Inject() (auth: Auth, cache: Cache) extends Controller {
 
-    def facebookAuth = AuthAction { implicit user => implicit request =>
+    def facebookAuth = auth.AuthAction { implicit user => implicit request =>
         user match {
             case Some(_) => Found("/")
             case None =>
@@ -32,9 +33,9 @@ class SocialController @Inject() (auth: Auth) extends Controller {
         if (userId.isDefined) {
             val user = User.find(userId.get)
             val admin = User.isUserAdmin(user.get.userId.get)
-            val token = Auth.getNewUserSessionId(user.get.userId.get)
+            val token = auth.getNewUserSessionId(user.get.userId.get)
             if (admin) {
-                val sess = new Session(token)
+                val sess = new Session(cache)(token)
                 sess.set("admin", "true")
             }
             val next = request.getQueryString("next")
@@ -56,7 +57,7 @@ class SocialController @Inject() (auth: Auth) extends Controller {
                     if (admin) {
                         user.get.session.get.set("admin", "true")
                     }
-                    return Found("/").withCookies(Auth.newSessionCookies(user.get.userId.get))
+                    return Found("/").withCookies(auth.newSessionCookies(user.get.userId.get))
                 }
             }
             val fbName = (info \ "name").as[String]
@@ -75,10 +76,10 @@ class SocialController @Inject() (auth: Auth) extends Controller {
             val newUser = User.create(username, if(fbName.length < 21) fbName else fbName.substring(0, 20) , "", fbEmail.getOrElse(""), None, pic = pic)
             if (newUser.isDefined) {
                 SocialUser.createFBUser(fbId, newUser.get.toInt)
-                val sess_token = Auth.getNewUserSessionId(User.find(newUser.get.toInt).get.userId.get)
-                val sess = new Session(sess_token)
+                val sess_token = auth.getNewUserSessionId(User.find(newUser.get.toInt).get.userId.get)
+                val sess = new Session(cache)(sess_token)
                 sess.multiSet(Map("getting_started" -> "true", "fb_token" -> token))
-                Found("/").withCookies(Auth.newSessionCookies(sess_token))
+                Found("/").withCookies(auth.newSessionCookies(sess_token))
             } else {
                 InternalServerError("Oops.")
             }

@@ -9,7 +9,7 @@ import play.api.libs.json.Json
 
 class PageController @Inject() (auth: Auth) extends Controller {
 
-    def neverending = AuthAction { implicit user => implicit request =>
+    def neverending = auth.AuthAction { implicit user => implicit request =>
         val context = request.getQueryString("context")
         if (context.isDefined) {
             if (context.get == "home") {

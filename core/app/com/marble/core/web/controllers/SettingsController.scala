@@ -10,14 +10,14 @@ import com.sksamuel.scrimage._
 
 class SettingsController @Inject() (auth: Auth) extends Controller {
 
-    def userSettingsPage = AuthAction { implicit user => implicit request =>
+    def userSettingsPage = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => Found("/login")
             case Some(_) => Ok(com.marble.core.web.views.html.desktop.core.settings(user.get))
         }
     }
 
-    def boardSettingsPage(name: String) = AuthAction { implicit user => implicit request =>
+    def boardSettingsPage(name: String) = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => Found("/login")
             case Some(_) =>
@@ -34,7 +34,7 @@ class SettingsController @Inject() (auth: Auth) extends Controller {
         }
     }
 
-    def boardSettingsChange(name: String) = AuthAction { implicit user => implicit request =>
+    def boardSettingsChange(name: String) = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => Found("/login")
             case Some(_) =>
@@ -79,7 +79,7 @@ class SettingsController @Inject() (auth: Auth) extends Controller {
         }
     }
 
-    def userSettingsChange = AuthAction { implicit user => implicit request =>
+    def userSettingsChange = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => Found("/login")
             case Some(_) =>

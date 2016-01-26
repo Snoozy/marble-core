@@ -23,7 +23,7 @@ class MediaController @Inject() (auth: Auth) extends Controller {
      *
      * @return Json with the media id of the media just uploaded.
      */
-    def upload = AuthAction { implicit user => implicit request =>
+    def upload = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => BadRequest(Json.obj("error" -> "User authentication required. Code: 10"))
             case Some(_) =>

@@ -9,7 +9,7 @@ import play.api.libs.json.Json
 
 class UserController @Inject() (auth: Auth) extends Controller {
 
-    def userPage(username: String) = AuthAction { implicit user => implicit request =>
+    def userPage(username: String) = auth.AuthAction { implicit user => implicit request =>
         if (username.startsWith("@")) {
             Found("/user/" + username.substring(1))
         } else {
@@ -26,7 +26,7 @@ class UserController @Inject() (auth: Auth) extends Controller {
         }
     }
 
-    def checkEmail = AuthAction { implicit user => implicit request =>
+    def checkEmail = auth.AuthAction { implicit user => implicit request =>
         val email = request.getQueryString("email")
         if (email.isDefined && User.checkEmail(email.get)) {
             Ok(Json.obj("success" -> "Username is available."))

@@ -7,7 +7,7 @@ import play.api.mvc._
 
 class ExploreController @Inject() (auth: Auth) extends Controller {
 
-    def explore = AuthAction { implicit user => implicit request =>
+    def explore = auth.AuthAction { implicit user => implicit request =>
         val boards = Board.getTrendingBoards(limit = 50)
         Ok(com.marble.core.web.views.html.desktop.core.explore(user, boards))
     }

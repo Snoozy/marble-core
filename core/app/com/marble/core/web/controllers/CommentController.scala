@@ -11,7 +11,7 @@ import play.api.libs.json.Json
 
 class CommentController @Inject() (auth: Auth) extends Controller {
 
-    def viewSingleComment(name: String, id: Int) = AuthAction { implicit user => implicit request =>
+    def viewSingleComment(name: String, id: Int) = auth.AuthAction { implicit user => implicit request =>
         val board = Board.find(name)
         val comment = Comment.find(id, status = None)
         if (comment.isDefined && board.isDefined) {
@@ -26,7 +26,7 @@ class CommentController @Inject() (auth: Auth) extends Controller {
         }
     }
 
-    def createComment(postId: Int) = AuthAction { implicit user => implicit request =>
+    def createComment(postId: Int) = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => BadRequest(Json.obj("error" -> "User not authenticated."))
             case Some(_) =>
@@ -53,7 +53,7 @@ class CommentController @Inject() (auth: Auth) extends Controller {
         }
     }
 
-    def deleteComment(commentId: Int) = AuthAction { implicit user => implicit request =>
+    def deleteComment(commentId: Int) = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => BadRequest(Json.obj("error" -> "User not authenticated"))
             case Some(_) =>

@@ -25,7 +25,7 @@ class CustomHTMLCompressorFilter @Inject() (
         c.setCompressCss(true)
         c.setCompressJavaScript(true)
         c.setRemoveComments(true)
-        c.setRemoveIntertagSpaces(false)
+        c.setRemoveIntertagSpaces(true)
         c.setRemoveHttpProtocol(true)
         c.setRemoveHttpsProtocol(true)
         c

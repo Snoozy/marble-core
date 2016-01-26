@@ -6,7 +6,7 @@ import play.api.mvc._
 
 class GettingStartedController @Inject() (auth: Auth) extends Controller {
 
-    def gettingStarted = AuthAction { implicit user => implicit request =>
+    def gettingStarted = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => Found("/")
             case Some(_) =>

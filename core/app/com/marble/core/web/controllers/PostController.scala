@@ -11,7 +11,7 @@ import play.api.mvc._
 
 class PostController @Inject() (auth: Auth) extends Controller {
 
-    def viewPostPage(board_name: String, postId: Int) = AuthAction { implicit user => implicit request =>
+    def viewPostPage(board_name: String, postId: Int) = auth.AuthAction { implicit user => implicit request =>
         val board = Board.find(board_name)
         val post = Post.find(postId)
         if (post.isDefined && board.isDefined && post.get.boardId == board.get.boardId.get) {
@@ -21,14 +21,14 @@ class PostController @Inject() (auth: Auth) extends Controller {
         }
     }
 
-    def post = AuthAction { implicit user => implicit request =>
+    def post = auth.AuthAction { implicit user => implicit request =>
         user match {
             case Some(_) => processPost(request, user.get)
             case None => BadRequest("User not authenticated.")
         }
     }
 
-    def repost = AuthAction { implicit user => implicit request =>
+    def repost = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => BadRequest("User not authenticated.")
             case Some(_) => processRepost(request, user.get)
@@ -74,7 +74,7 @@ class PostController @Inject() (auth: Auth) extends Controller {
         }.getOrElse(BadRequest("FormUrlEncoded required."))
     }
 
-    def deletePost(postId: Int) = AuthAction { implicit user => implicit request =>
+    def deletePost(postId: Int) = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => BadRequest("User not authenticated.")
             case Some(_) =>

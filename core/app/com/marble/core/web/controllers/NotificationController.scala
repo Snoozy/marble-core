@@ -8,7 +8,7 @@ import play.api.libs.json.Json
 
 class NotificationController @Inject() (auth: Auth) extends Controller {
 
-    def readNotifications = AuthAction { implicit user => implicit request =>
+    def readNotifications = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => BadRequest(Json.obj("error" -> "User not authenticated."))
             case Some(_) =>

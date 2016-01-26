@@ -15,7 +15,6 @@ import com.marble.core.data.cache.Cache
 
 class AuthController @Inject() (auth: Auth, cache: Cache) extends Controller {
 
-
     def cleanLoginPage = auth.AuthAction { implicit user => implicit request =>
         user match {
             case Some(_) => Redirect("/")

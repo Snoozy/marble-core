@@ -32,7 +32,7 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
         Ok("asdf")
     }
 
-    def refresh = AuthAction { implicit user => implicit request =>
+    def refresh = auth.AuthAction { implicit user => implicit request =>
         if ((user.isDefined && user.get.admin) || Play.isDev) {
             cache.delete("gettingStarted_cache")
             cache.delete("welcome_cache")
@@ -42,7 +42,7 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
         }
     }
 
-    def reddit = AuthAction { implicit user => implicit request =>
+    def reddit = auth.AuthAction { implicit user => implicit request =>
         subreddits.foreach {
             case (key, value) =>
                 value.foreach { s =>
@@ -139,7 +139,7 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
         Ok("done")
     }
 
-    def cleanS3 = AuthAction { implicit user => implicit request =>
+    def cleanS3 = auth.AuthAction { implicit user => implicit request =>
         /* TODO WHEN S3 BUCKET IS FILLING UP
         if (user.isDefined && user.get.admin) {
             val aws_key = Play.current.configuration.getString("aws.key")

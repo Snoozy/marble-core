@@ -18,6 +18,7 @@ class Session @Inject() (cache: Cache)(t: String) {
                 None
         } catch {
             case e: java.lang.ClassCastException => None
+            case f: NullPointerException => None
         }
     }
 

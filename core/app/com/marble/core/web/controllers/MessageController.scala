@@ -1,15 +1,16 @@
 package com.marble.core.web.controllers
 
+import com.google.inject.Inject
 import com.marble.core.data.db.models._
-import com.marble.utils.play.Auth.AuthAction
+import com.marble.utils.play.Auth
 import com.marble.core.web.views.html.desktop.core
 import play.api.mvc._
 import com.marble.core.web.views.html.desktop.components
 import play.api.libs.json.Json
 
-class MessageController extends Controller {
+class MessageController @Inject() (auth: Auth) extends Controller {
 
-    def inbox = AuthAction { implicit user => implicit request =>
+    def inbox = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None =>
                 Found("/login")
@@ -20,7 +21,7 @@ class MessageController extends Controller {
         }
     }
 
-    def send(id: Int) = AuthAction { implicit user => implicit request =>
+    def send(id: Int) = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None =>
                 BadRequest(Json.obj("error" -> "User must be authenticated"))
@@ -51,7 +52,7 @@ class MessageController extends Controller {
         }
     }
 
-    def getPaged(conversationId: Int) = AuthAction { implicit user => implicit request =>
+    def getPaged(conversationId: Int) = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None =>
                 BadRequest(Json.obj("error" -> "User must be authenticated"))
@@ -74,7 +75,7 @@ class MessageController extends Controller {
         }
     }
 
-    def getConversation(conversationId: Int) = AuthAction { implicit user => implicit request =>
+    def getConversation(conversationId: Int) = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None =>
                 BadRequest(Json.obj("error" -> "User must be authenticated"))
@@ -103,7 +104,7 @@ class MessageController extends Controller {
         }
     }
 
-    def poll(conversationId: Int) = AuthAction { implicit user => implicit request =>
+    def poll(conversationId: Int) = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None =>
                 BadRequest(Json.obj("error" -> "User must be authenticated"))

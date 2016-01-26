@@ -8,7 +8,7 @@ import play.api.mvc._
 
 class SearchController @Inject() (auth: Auth) extends Controller {
 
-    def searchPage = AuthAction { implicit user => implicit request =>
+    def searchPage = auth.AuthAction { implicit user => implicit request =>
         val q = request.getQueryString("q")
         if (q.isDefined) {
             val boards = Search.boardSearch(q.get)
