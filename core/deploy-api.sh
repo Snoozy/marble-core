@@ -20,17 +20,17 @@ if [ -e "$package_path" ]; then
     for server in "$server_ips"
     do
         echo "Deploying to ${server}."
-        scp "$package_path" ubuntu@${server}:/home/ubuntu/cillo-api.zip
-        rsync -avz $HOME/.cillo/prod_api.conf ubuntu@${server}:/home/ubuntu/
+        scp "$package_path" ubuntu@${server}:/home/ubuntu/marble-api.zip
+        rsync -avz $HOME/.marble/prod_api.conf ubuntu@${server}:/home/ubuntu/
         ssh ubuntu@${server} bash -c "'
-            unzip -o cillo-api.zip
-            sudo rm -rf cillo-api-backup/
-            mv cillo-api/ cillo-api-backup/
-            mv ${filename}/ cillo-api/
-            chmod 755 ./cillo-api/bin/cillo
-            rm cillo-api.zip
-            sudo kill \$(head -n 1 /home/ubuntu/cillo-api-backup/RUNNING_PID)
-            sudo ./cillo-api/bin/cillo -J-Xms128M -J-Xmx750M -J-server -Dconfig.file=/home/ubuntu/prod_api.conf -Dhttp.port=80 &
+            unzip -o marble-api.zip
+            sudo rm -rf marble-api-backup/
+            mv marble-api/ marble-api-backup/
+            mv ${filename}/ marble-api/
+            chmod 755 ./marble-api/bin/marble
+            rm marble-api.zip
+            sudo kill \$(head -n 1 /home/ubuntu/marble-api-backup/RUNNING_PID)
+            sudo ./marble-api/bin/marble -J-Xms128M -J-Xmx750M -J-server -Dconfig.file=/home/ubuntu/prod_api.conf -Dhttp.port=80 &
             disown
         '"
     done

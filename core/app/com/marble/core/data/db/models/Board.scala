@@ -23,7 +23,7 @@ case class Board (
 object Board {
 
     private val DefaultPhotoString = "default_group"
-    private val ImageURLBase = "https://static.marble.co/image/"
+    private val ImageURLBase = "https://static.themarble.co/image/"
 
     private[data] val boardParser: RowParser[Board] = {
         get[Option[Int]]("board_id") ~

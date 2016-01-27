@@ -16,7 +16,6 @@ import scala.util.Random
 case class Post (
     postId: Option[Int],
     userId: Int,
-    title: Option[String],
     data: String,
     boardId: Int,
     repostId: Option[Int],
@@ -33,7 +32,6 @@ object Post {
     private[models] val postParser: RowParser[Post] = {
         get[Option[Int]]("post_id") ~
             get[Int]("user_id") ~
-            get[Option[String]]("title") ~
             get[String]("data") ~
             get[Int]("board_id") ~
             get[Option[Int]]("repost_id") ~
@@ -41,9 +39,9 @@ object Post {
             get[Int]("comment_count") ~
             get[Long]("time") ~
             get[String]("media") map {
-            case postId ~ userId ~ title ~ data ~ boardId ~ repostId ~ votes ~ commentCount ~ time ~ media =>
+            case postId ~ userId ~ data ~ boardId ~ repostId ~ votes ~ commentCount ~ time ~ media =>
                 val media_ids = media.split("~").filter(_ != "").map(_.toInt)
-                Post(postId, userId, title, data, boardId, repostId, votes, commentCount, time, media_ids)
+                Post(postId, userId, data, boardId, repostId, votes, commentCount, time, media_ids)
         }
     }
 
@@ -59,7 +57,7 @@ object Post {
         }
     }
 
-    def createSimplePost(userId: Int, title: Option[String], data: String, boardId: Int, repostId: Option[Int] = None, time: Long = System.currentTimeMillis()): Option[Long] = {
+    def createSimplePost(userId: Int, data: String, boardId: Int, repostId: Option[Int] = None, time: Long = System.currentTimeMillis()): Option[Long] = {
         // checking that data is a number if post is a repost
         if (repostId.isDefined) {
             val repostExists = Post.find(repostId.get)
@@ -67,17 +65,9 @@ object Post {
                 return None
         }
 
-        val titleParsed: Option[String] = {
-            if (title.isDefined) {
-                Some(title.get.replace("\n", ""))
-            } else {
-                None
-            }
-        }
-
         DB.withConnection { implicit connection =>
-            val id: Option[Long] = SQL("INSERT INTO post (user_id, title, data, board_id, repost_id, votes, time, comment_count) VALUES ({user_id}, {title}, {data}," +
-                " {board_id}, {repost_id}, 0, {time}, 0)").on('user_id -> userId, 'title -> titleParsed, 'data -> data,
+            val id: Option[Long] = SQL("INSERT INTO post (user_id, data, board_id, repost_id, votes, time, comment_count) VALUES ({user_id}, {data}," +
+                " {board_id}, {repost_id}, 0, {time}, 0)").on('user_id -> userId, 'data -> data,
                     'board_id -> boardId, 'repost_id -> repostId, 'time -> time).executeInsert()
             if (id.isDefined) {
                 Notification.addListener(id.get.toInt, EntityType.Post, userId)
@@ -86,23 +76,15 @@ object Post {
         }
     }
 
-    def createMediaPost(userId: Int, title: Option[String], data: String, boardId: Int, mediaIds: Seq[Int], time: Long = System.currentTimeMillis()): Option[Long] = {
+    def createMediaPost(userId: Int, data: String, boardId: Int, mediaIds: Seq[Int], time: Long = System.currentTimeMillis()): Option[Long] = {
 
         mediaIds.foreach(id => if (Media.find(id).isEmpty) return None)
 
         val mediaString = mediaIds.mkString("~")
 
-        val titleParsed: Option[String] = {
-            if (title.isDefined) {
-                Some(title.get.replace("\n", ""))
-            } else {
-                None
-            }
-        }
-
         DB.withConnection { implicit connection =>
-            val id: Option[Long] = SQL("INSERT INTO post (user_id, title, data, board_id, votes, time, comment_count, media) values ({user_id}, {title}, {data}," +
-                " {board_id}, 0, {time}, 0, {media})").on('user_id -> userId, 'title -> titleParsed, 'data -> data,
+            val id: Option[Long] = SQL("INSERT INTO post (user_id, data, board_id, votes, time, comment_count, media) values ({user_id}, {data}," +
+                " {board_id}, 0, {time}, 0, {media})").on('user_id -> userId, 'data -> data,
                     'board_id -> boardId, 'time -> time, 'media -> mediaString).executeInsert()
             if (id.isDefined) {
                 Notification.addListener(id.get.toInt, EntityType.Post, userId)
@@ -172,7 +154,6 @@ object Post {
                     newPost = newPost.as[JsObject] +
                         ("repost" -> Post.toJsonSingle(repostedPost.get, user)) +
                         ("content" -> Json.toJson(post.data)) +
-                        ("title" -> Json.toJson(post.title)) +
                         ("board" -> Board.toJsonSingle(board.get, user, following = following)) +
                         ("user" -> User.toJson(reposter.get, self = user)) +
                         ("time" -> Json.toJson(post.time)) +
@@ -186,7 +167,6 @@ object Post {
             if (board.isDefined && poster.isDefined) {
                 newPost = newPost.as[JsObject] +
                     ("content" -> Json.toJson(post.data)) +
-                    ("title" -> Json.toJson(post.title)) +
                     ("board" -> Board.toJsonSingle(board.get, user, following = following)) +
                     ("user" -> User.toJson(poster.get, self = user)) +
                     ("time" -> Json.toJson(post.time)) +

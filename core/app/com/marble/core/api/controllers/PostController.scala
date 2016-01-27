@@ -47,11 +47,11 @@ class PostController @Inject() (auth: Auth) extends Controller {
                 val board_name = form.get("board_name").map(_.head)
                 try {
                     if (boardId.isDefined)
-                        post_id = Post.createSimplePost(user.get.userId.get, None, data.getOrElse(""), boardId.get, repost_id)
+                        post_id = Post.createSimplePost(user.get.userId.get, data.getOrElse(""), boardId.get, repost_id)
                     else if (board_name.isDefined) {
                         val board = Board.find(board_name.get)
                         if (board.isDefined)
-                            post_id = Post.createSimplePost(user.get.userId.get, None, data.getOrElse(""), board.get.boardId.get, repost_id)
+                            post_id = Post.createSimplePost(user.get.userId.get, data.getOrElse(""), board.get.boardId.get, repost_id)
                     }
                 } catch {
                     case e: NumberFormatException => // Do nothing so post stays None and if statement is not triggered.
@@ -63,21 +63,21 @@ class PostController @Inject() (auth: Auth) extends Controller {
                     val board_name = form.get("board_name").map(_.head)
                     if (media_ids.isEmpty) {
                         if (data.isDefined && boardId.isDefined) {
-                            post_id = Post.createSimplePost(user.get.userId.get, form.get("title").map(_.head), data.get,
+                            post_id = Post.createSimplePost(user.get.userId.get, data.get,
                                 boardId.get)
                         } else if (board_name.isDefined && data.isDefined) {
                             val board = Board.find(board_name.get)
                             if (board.isDefined)
-                                post_id = Post.createSimplePost(user.get.userId.get, form.get("title").map(_.head), data.get,
+                                post_id = Post.createSimplePost(user.get.userId.get, data.get,
                                     board.get.boardId.get)
                         }
                     } else {
                         if (data.isDefined && boardId.isDefined) {
-                            post_id = Post.createMediaPost(user.get.userId.get, form.get("title").map(_.head), data.get,
+                            post_id = Post.createMediaPost(user.get.userId.get, data.get,
                                 boardId.get, media_ids.get.split(",").map(_.toInt))
                         } else if (board_name.isDefined && data.isDefined) {
                             val board = Board.find(board_name.get)
-                            post_id = Post.createMediaPost(user.get.userId.get, form.get("title").map(_.head), data.get,
+                            post_id = Post.createMediaPost(user.get.userId.get, data.get,
                                 board.get.boardId.get, media_ids.get.split(",").map(_.toInt))
                         }
                     }

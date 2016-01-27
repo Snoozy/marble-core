@@ -63,11 +63,11 @@
             </div>
 
             <div class="post-content">
-                @if(post.title.isDefined) {
-                    <div class="post-text-title">
-                        <span class="post-text-title-text">
-                            @post.title.get
-                        </span>
+                @if(post.data != "") {
+                    <div class="post-text-container">
+                        <div class="post-text">
+                        @Html(Etc.parseHTML(post.data))
+                        </div>
                     </div>
                 }
                 @if(media.nonEmpty) {
@@ -82,13 +82,6 @@
                             </a>
                         </div>
                     }
-                }
-                @if(post.data != "") {
-                    <div class="post-text-container">
-                        <div class="post-text">
-                            @Html(Etc.parseHTML(post.data))
-                        </div>
-                    </div>
                 }
                 @if(repost.isDefined) {
                     @defining(Board.find(repost.get.boardId)) { b =>
@@ -123,11 +116,11 @@
                                     <span style="font-weight: 600;">:</span>
                                 </div>
                             </div>
-                            @if(repost.get.title.isDefined) {
-                                <div class="post-text-title">
-                                    <span class="post-text-title-text">
-                                    @repost.get.title.get
-                                    </span>
+                            @if(repost.isDefined && post.data != "") {
+                                <div class="post-text-container">
+                                    <div class="post-text">
+                                    @Html(Etc.parseHTML(repost.get.data))
+                                    </div>
                                 </div>
                             }
                             @if(repost.get.media.nonEmpty) {
@@ -142,13 +135,6 @@
                                         </a>
                                     </div>
                                 }
-                            }
-                            @if(repost.isDefined && post.data != "") {
-                                <div class="post-text-container">
-                                    <div class="post-text">
-                                        @Html(Etc.parseHTML(repost.get.data))
-                                    </div>
-                                </div>
                             }
                             <div class="repost-dialog">
                                 <a href="/@b.get.name/posts/@repost.get.postId.get" class="repost-post-anchor">
@@ -197,7 +183,7 @@
                 }
                 <span class="p-action comment">
                     <span class="bullet"> · </span>
-                    <a class="p-action-anchor action-link-share" data-share-url="https://www.marble.co/@board.name/posts/@post.postId.get" href="#">
+                    <a class="p-action-anchor action-link-share" data-share-url="https://www.themarble.co/@board.name/posts/@post.postId.get" href="#">
                         <i class="icon-fb-share"></i>
                         <span class="color-blue comment-text" style="margin-left:5px;">Share</span>
                     </a>

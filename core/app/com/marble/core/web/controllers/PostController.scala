@@ -53,7 +53,7 @@ class PostController @Inject() (auth: Auth) extends Controller {
                                 else
                                     repost.get.postId
                             }
-                            val newPost = Post.createSimplePost(user.userId.get, None, comment.getOrElse(""), board.get.boardId.get, repostId)
+                            val newPost = Post.createSimplePost(user.userId.get, comment.getOrElse(""), board.get.boardId.get, repostId)
                             if (newPost.isDefined) {
                                 Ok(Json.obj("item_html" -> compressHtml(components.post(Post.find(newPost.get.toInt).get, Some(user))().toString())))
                             } else {
@@ -95,16 +95,12 @@ class PostController @Inject() (auth: Auth) extends Controller {
         val body: AnyContent = request.body
         body.asFormUrlEncoded.map { form =>
             try {
-                var title = form.get("title").map(_.head)
                 val data = form.get("data").map(_.head)
                 val board_name = form.get("board_name").map(_.head)
                 val mediaIds = form.get("media").map(_.head)
                 if (data.isDefined && board_name.isDefined) {
                     val board = Board.find(board_name.get)
                     if (board.isDefined) {
-                        if (title.isDefined && title.get == "") {
-                            title = None
-                        }
                         val newPost = {
                             if (user.admin) {
                                 val newUserName = form.get("user").map(_.head)
@@ -119,22 +115,22 @@ class PostController @Inject() (auth: Auth) extends Controller {
                                     }
                                     val newUser = User.find(newUserId)
                                     if (mediaIds.isEmpty || mediaIds.get == "") {
-                                        Post.createSimplePost(newUser.get.userId.get, title, data.get, board.get.boardId.get)
+                                        Post.createSimplePost(newUser.get.userId.get, data.get, board.get.boardId.get)
                                     } else {
-                                        Post.createMediaPost(newUser.get.userId.get, title, data.get, board.get.boardId.get, mediaIds.get.split("~").map(_.toInt))
+                                        Post.createMediaPost(newUser.get.userId.get, data.get, board.get.boardId.get, mediaIds.get.split("~").map(_.toInt))
                                     }
                                 } else {
                                     if (mediaIds.isEmpty || mediaIds.get == "") {
-                                        Post.createSimplePost(user.userId.get, title, data.get, board.get.boardId.get)
+                                        Post.createSimplePost(user.userId.get, data.get, board.get.boardId.get)
                                     } else {
-                                        Post.createMediaPost(user.userId.get, title, data.get, board.get.boardId.get, mediaIds.get.split("~").map(_.toInt))
+                                        Post.createMediaPost(user.userId.get, data.get, board.get.boardId.get, mediaIds.get.split("~").map(_.toInt))
                                     }
                                 }
                             } else {
                                 if (mediaIds.isEmpty || mediaIds.get == "") {
-                                    Post.createSimplePost(user.userId.get, title, data.get, board.get.boardId.get)
+                                    Post.createSimplePost(user.userId.get, data.get, board.get.boardId.get)
                                 } else {
-                                    Post.createMediaPost(user.userId.get, title, data.get, board.get.boardId.get, mediaIds.get.split("~").map(_.toInt))
+                                    Post.createMediaPost(user.userId.get, data.get, board.get.boardId.get, mediaIds.get.split("~").map(_.toInt))
                                 }
                             }
                         }

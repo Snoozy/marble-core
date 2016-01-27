@@ -2,7 +2,6 @@ package com.marble.core.web.controllers
 
 import com.google.inject.Inject
 import com.marble.core.data.cache.Cache
-import com.marble.core.config.FacebookConfig
 import com.marble.core.data.cache.Session
 import com.marble.core.data.db.models._
 import com.marble.utils.play.Auth
@@ -10,7 +9,7 @@ import com.marble.core.social.FB
 import com.marble.core.data.aws.S3
 import play.api.mvc._
 
-class SocialController @Inject() (auth: Auth, cache: Cache) extends Controller {
+class SocialController @Inject() (auth: Auth, cache: Cache, fbSession: FB) extends Controller {
 
     def facebookAuth = auth.AuthAction { implicit user => implicit request =>
         user match {
@@ -26,7 +25,7 @@ class SocialController @Inject() (auth: Auth, cache: Cache) extends Controller {
 
     private def processFacebookAuth(request: Request[AnyContent]): Result = {
         val token = request.getQueryString("fb_token").get
-        val fb = new FB(new FacebookConfig).createFBInstance(token)
+        val fb = fbSession.createFBInstance(token)
         val info = fb.getBasicInfo
         val fbId = (info \ "id").as[String].toLong
         val userId = SocialUser.findFbUserId(fbId)

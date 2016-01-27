@@ -4,7 +4,6 @@ import com.google.inject.Singleton
 import com.google.inject.Inject
 import com.marble.core.config.FacebookConfig
 import com.ning.http.client.{AsyncHttpClientConfig, AsyncHttpClient}
-import play.api.Logger
 import play.api.libs.json._
 import play.api.libs.ws._
 import scala.concurrent.duration._

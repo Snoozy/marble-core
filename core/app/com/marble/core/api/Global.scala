@@ -1,14 +1,8 @@
 package com.marble.core.api
 
-import com.marble.core.api.apple.PushNotifications
-import com.marble.core.api.controllers.EtcController
-import com.marble.core.data.cache.Memcached
-import com.marble.core.data.cache.Redis
-import play.api.Play.current
 import play.api.libs.json.Json
 import play.api.mvc.Results._
 import play.api.mvc._
-import play.api.Logger
 import play.api.{Application, GlobalSettings, Play}
 import play.filters.gzip.GzipFilter
 
@@ -19,7 +13,7 @@ import scala.concurrent.Future
  * memcached instance on application start.
  */
 
-object Global extends WithFilters(new GzipFilter()) with GlobalSettings {
+object Global extends WithFilters() with GlobalSettings {
 
     override def onRouteRequest(request: RequestHeader): Option[Handler] = {
         super.onRouteRequest(request)

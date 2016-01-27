@@ -198,10 +198,7 @@ object Notification {
                 val post = Post.find(notification.entityId)
                 val board = Board.find(post.get.boardId)
                 val descr = {
-                    if (post.get.title.isDefined)
-                        post.get.title.get
-                    else
-                        Etc.preview(post.get.data, 50)
+                    Etc.preview(post.get.data, 50)
                 }
                 ("/" + board.get.name + "/posts/" + post.get.postId.get, descr)
             case EntityType.Comment =>
@@ -222,10 +219,7 @@ object Notification {
         notification.entityType match {
             case EntityType.Post =>
                 val post = Post.find(notification.entityId)
-                if (post.get.title.isDefined)
-                    post.get.title.get
-                else
-                    Etc.preview(post.get.data, 50)
+                Etc.preview(post.get.data, 50)
             case EntityType.Comment =>
                 val comment = Comment.find(notification.entityId, status = None)
                 Etc.preview(comment.get.data, 50)

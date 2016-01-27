@@ -14,7 +14,7 @@ case class Media(
 
 object Media {
 
-    val BaseMediaURL = "https://static.marble.co/image/"
+    val BaseMediaURL = "https://static.themarble.co/image/"
 
     private[models] val mediaParser: RowParser[Media] = {
         get[Option[Int]]("media_id") ~

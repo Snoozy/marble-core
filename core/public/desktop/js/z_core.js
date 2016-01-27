@@ -3,7 +3,6 @@ function collapseFirstPost() {
     $('.post-form').css('height', '34px');
     $('.first-post-clear').addClass('displaynone');
     $('.picture_upload').addClass('displaynone');
-    $('.post-title').addClass('displaynone');
     $('.post-board-wrapper').addClass('displaynone');
     $('.post-board-text').addClass('displaynone');
     $('.post-board-as-user-container').addClass('displaynone');
@@ -18,7 +17,6 @@ function expandFirstPost() {
     autosize.update($('.post-form'));
     $('.first-post-clear').removeClass('displaynone');
     $('.picture_upload').removeClass('displaynone');
-    $('.post-title').removeClass('displaynone');
     $('.post-board-wrapper').removeClass('displaynone');
     $('.post-board-text').removeClass('displaynone');
     $('.post-board-as-user-container').removeClass('displaynone');
@@ -746,8 +744,6 @@ $(document).ready(function() {
 
     $(".post-submit").click(function () {
 
-        var post_title = $('.post-title').val();
-
         if ($('.post-form').val() == "" && post_tile == "") {
             $('.post-submit').shake(3, 15, 250);
             $('.post-form').addClass('error-border');
@@ -789,7 +785,6 @@ $(document).ready(function() {
                         dataType: "json",
                         data: {
                             "data": post_content,
-                            "title": post_title,
                             "board_name": post_board,
                             "media": media_ids,
                             "user": user
@@ -799,7 +794,6 @@ $(document).ready(function() {
                                 .on('openstart', function() {$('html').addClass('noscroll');})
                                 .on('closeend', function() {$('html').removeClass('noscroll');});
                             $('textarea.post-form').val('');
-                            $('.post-title').val('');
                             $('.post-board').val('');
                             $('.previews').empty();
                             $('.thumbnail-container').addClass('displaynone');
@@ -824,7 +818,6 @@ $(document).ready(function() {
                 dataType: "json",
                 data: {
                     "data": post_content,
-                    "title": post_title,
                     "board_name": post_board,
                     "user": user
                 },
@@ -834,7 +827,6 @@ $(document).ready(function() {
                 success: function (response, textStatus, jqXHR) {
                     $(response.item_html).hide().fadeIn(1000).css('display', 'block').insertAfter('.first-post');
                     $('textarea.post-form').val('');
-                    $('.post-title').val('');
                     collapseFirstPost();
                     $('.first-post').css('opacity', '1');
                     reset_form();

@@ -51,7 +51,7 @@ case class User @Inject() (
 object User {
 
     private val DefaultPhotoString = "default"
-    private val ImageURLBase = "https://static.marble.co/image/"
+    private val ImageURLBase = "https://static.themarble.co/image/"
 
     @Inject val cache: Cache = null
 

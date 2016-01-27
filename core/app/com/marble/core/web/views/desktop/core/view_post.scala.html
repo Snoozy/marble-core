@@ -8,7 +8,7 @@
 @import com.marble.core.data.db.models._
 @import com.marble.utils.Etc
 
-@components.base(if(post.title.isDefined){post.title.get}else{poster.get.name + "'s post on " + board.get.name}) {
+@components.base(if(post.data.length > 1){Etc.ellipsize(post.data, 300) + " - Marble"}else{poster.get.name + "'s post on " + board.get.name + " - Marble"}) {
     <style>
         .comment-children-container {
             border-top: 1px solid #e1e8ed;
@@ -22,19 +22,19 @@
     <meta property="og:type"   content="marbleapp:post" />
     <meta property="og:site_name" content="Marble" />
     @if(repost.isEmpty) {
-        @if(post.title.isDefined) {
-            <meta property="og:title" content="@post.title.get" />
+        @if(post.data.length > 1) {
+            <meta property="og:title" content="@Etc.ellipsize(post.data, 300)" />
         } else {
             <meta property="og:title" content="@poster.get.name's post on @board.get.name" />
         }
-        <meta property="og:description" content="@Etc.ellipsize(post.data, 300)">
+        <meta property="og:description" content="@post.votes upvotes and @post.commentCount comments so far on Marble">
     } else {
-        @if(repost.get.title.isDefined) {
-            <meta property="og:title" content="@repost.get.title.get" />
+        @if(repost.get.data.length > 1) {
+            <meta property="og:title" content="@Etc.ellipsize(repost.get.data, 300)" />
         } else {
             <meta property="og:title" content="@poster.get.name's post on @board.get.name" />
         }
-        <meta property="og:description" content="@Etc.ellipsize(repost.get.data, 300)">
+        <meta property="og:description" content="@repost.get.votes upvotes and @repost.get.commentCount comments so far on Marble">
     }
     @if(media.nonEmpty) {
         <meta property="og:image" content="@media.head.get.mediaUrl" />

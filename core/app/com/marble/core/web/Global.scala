@@ -6,7 +6,6 @@ import play.api.Play.current
 import play.api.mvc.Results._
 import play.api.mvc._
 import play.api.{Application, GlobalSettings, Play}
-import com.marble.core.social.FB
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.marble.utils.UAgentInfo
 import scala.concurrent.Future
@@ -27,7 +26,7 @@ object Global extends WithFilters() with GlobalSettings {
             Some(EtcController.healthCheck)
         } else if (Play.isProd && MarbleConfig.RedirectHttp && (x.isEmpty || !x.get.contains("https")) ) {
             Some(EtcController.redirectHttp)
-        } else if (host == "marble.co" && MarbleConfig.RedirectToWWW) {
+        } else if (host == "themarble.co" && MarbleConfig.RedirectToWWW) {
             Some(Action{MovedPermanently("https://www.themarble.co" + request.uri)})
         } else if (ua.isDefined && MarbleConfig.RedirectMobile) {
             val uaInfo = new UAgentInfo(ua.get, request.headers.get("Accept").getOrElse(""))

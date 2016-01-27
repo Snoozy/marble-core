@@ -62,23 +62,9 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
                                         }
                                     }
                                     val testTitle = unescapeHtml4(p.getTitle.replace("[OC]", "").substring(0, p.getTitle.indexOf("[")))
-                                    val title = {
-                                        if (testTitle.length < 100) {
-                                            Some(testTitle)
-                                        } else {
-                                            None
-                                        }
-                                    }
-                                    val data = {
-                                        if (testTitle.length < 100) {
-                                            ""
-                                        } else {
-                                            testTitle
-                                        }
-                                    }
                                     val id = uploadURL(url)
                                     if (id.isDefined) {
-                                        Post.createMediaPost(userId, title, data, board.get.boardId.get, Seq(id.get), time = time)
+                                        Post.createMediaPost(userId, testTitle, board.get.boardId.get, Seq(id.get), time = time)
                                     }
                                 }
                             }
@@ -96,40 +82,12 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
                                         }
                                     }
                                     val testTitle = unescapeHtml4(p.getTitle)
-                                    val title = {
-                                        if (testTitle.length < 100) {
-                                            Some(testTitle)
-                                        } else {
-                                            None
-                                        }
-                                    }
-                                    val data = {
-                                        if (testTitle.length < 100) {
-                                            ""
-                                        } else {
-                                            testTitle
-                                        }
-                                    }
                                     val id = uploadURL(url)
                                     if (id.isDefined) {
-                                        Post.createMediaPost(userId, title, data, board.get.boardId.get, Seq(id.get), time = time)
+                                        Post.createMediaPost(userId, testTitle, board.get.boardId.get, Seq(id.get), time = time)
                                     }
                                 } else {
-                                    val title = {
-                                        if (p.getTitle.length < 100) {
-                                            Some(unescapeHtml4(p.getTitle))
-                                        } else {
-                                            None
-                                        }
-                                    }
-                                    val data = {
-                                        if (p.getTitle.length < 100) {
-                                            p.getURL
-                                        } else {
-                                            unescapeHtml4(p.getTitle) + "\n\n" + p.getURL
-                                        }
-                                    }
-                                    Post.createSimplePost(userId, title, data, board.get.boardId.get, time = time)
+                                    Post.createSimplePost(userId, unescapeHtml4(p.getTitle), board.get.boardId.get, time = time)
                                 }
                             }
                         }
@@ -163,6 +121,14 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
         }
         */
         Found("/")
+    }
+
+    def lets1 = Action { implicit request =>
+        Ok("T_ve90uUk-t4w03C0jADtPwxUhN0OdC5FmkzXV9I5DM.cDTgG2uynuYfvHRAybJzIzg48HAXFMuyjPd5bQ66U2I")
+    }
+
+    def lets2 = Action { implicit request =>
+        Ok("J0A36Wu0RAqN8-ToJjNl4CKi9vmcTIg0Htdj2UY84Lk.cDTgG2uynuYfvHRAybJzIzg48HAXFMuyjPd5bQ66U2I")
     }
 
 }
