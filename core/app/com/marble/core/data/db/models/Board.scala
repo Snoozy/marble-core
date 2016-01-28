@@ -101,6 +101,10 @@ object Board {
         }
     }
 
+    def verifyName(name: String): Boolean = {
+        !name.contains(' ')
+    }
+
     def getAll: Seq[Board] = {
         DB.withConnection { implicit connection =>
             SQL("SELECT * FROM board").as(boardParser *)

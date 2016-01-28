@@ -13,6 +13,7 @@ import org.apache.commons.lang3.RandomStringUtils
 import play.api.db._
 import play.api.libs.json._
 import com.marble.core.data.cache.Cache
+import com.marble.utils.Email._
 
 case class User @Inject() (
     userId: Option[Int],
@@ -183,6 +184,12 @@ object User {
             }
         } else
             None
+    }
+
+    def register(name: String, password: String, email: String): Option[Long] = {
+        if (verifyEmail(email)) {
+            User.create(User.genUsername(email, backup = name.replace(" ", "")), name, password, email, None)
+        } else None
     }
 
     def update(userId: Int, name: String, username: String, bio: String, pic: Int) = {

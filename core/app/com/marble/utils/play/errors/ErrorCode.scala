@@ -10,4 +10,5 @@ object ErrorCode {
 
     case object UsernameTaken extends Code { val id = 30 }
 
+    case object BoardNameInvalid extends Code { val id = 40 }
 }

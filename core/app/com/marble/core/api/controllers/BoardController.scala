@@ -5,6 +5,7 @@ import com.marble.core.data.db.models.{Board, Post, User}
 import com.marble.utils.play.Auth
 import play.api.libs.json.Json
 import play.api.mvc._
+import com.marble.utils.play.errors._
 
 /**
  * Handles everything with boards including:
@@ -43,7 +44,7 @@ class BoardController @Inject() (auth: Auth) extends Controller {
             val name = form.get("name").map(_.head)
             val descr = form.get("description").map(_.head)
             val photo = form.get("photo").map(_.head.toInt)
-            if (name.isDefined) {
+            if (name.isDefined && Board.verifyName(name.get)) {
                 var board_id: Option[Long] = None
                 board_id = Board.create(name.get, descr, user.get.userId.get, photo = photo)
                 if (board_id.isDefined) {
@@ -53,7 +54,7 @@ class BoardController @Inject() (auth: Auth) extends Controller {
                     BadRequest(Json.obj("error" -> "Board creation failed."))
                 }
             } else {
-                BadRequest(Json.obj("error" -> "Request format invalid."))
+                BadRequest(BoardNameInvalid.toJson)
             }
         }.getOrElse(BadRequest(Json.obj("error" -> "Request Content-Type invalid.")))
     }

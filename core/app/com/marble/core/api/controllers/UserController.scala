@@ -69,18 +69,15 @@ class UserController @Inject() (auth: Auth) extends Controller {
             case None =>
                 val body: AnyContent = request.body
                 body.asFormUrlEncoded.map { form =>
-                    val username = form.get("username").map(_.head)
                     val name = form.get("name").map(_.head)
                     val password = form.get("password").map(_.head)
                     val email = form.get("email").map(_.head)
-                    val bio = form.get("bio").map(_.head)
-                    if (username.isDefined && username.get.length < Constants.MaxUsernameLength && name.isDefined && name.get.length < Constants.MaxNameLength
-                        && password.isDefined && email.isDefined) {
-                        val usernameExists = User.find(username.get)
-                        if (usernameExists.isDefined) {
+                    if (name.isDefined && name.get.length < Constants.MaxNameLength && password.isDefined && email.isDefined) {
+                        val userExists = User.findByEmail(email.get)
+                        if (userExists.isDefined) {
                             BadRequest(UsernameTaken.toJson)
                         } else {
-                            val newUser = User.create(username.get, name.get, password.get, email.get, bio)
+                            val newUser = User.register(name.get, password.get, email.get)
                             if (newUser.isDefined) {
                                 val auth_token = auth.getNewUserSessionId(newUser.get.toInt)
                                 Ok(Json.obj("user" -> User.toJsonByUserID(newUser.get.toInt),

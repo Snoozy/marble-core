@@ -35,7 +35,7 @@ class RegisterController @Inject() (auth: Auth, c: Cache) extends Controller {
                 val userExists = User.findByEmail(email.get)
                 if (userExists.isDefined && Etc.checkPass(password.get, userExists.get.password))
                     Found("/").withCookies(auth.newSessionCookies(userExists.get.userId.get))
-                val newUser = User.create(User.genUsername(email.get, backup = name.get.replace(" ", "")), name.get, password.get, email.get, None)
+                val newUser = User.register(name.get, password.get, email.get)
                 if (newUser.isDefined) {
                     val token = auth.getNewUserSessionId(User.find(newUser.get.toInt).getOrElse(return BadRequest("Error.")).userId.get)
                     val sess = new cache.Session(c)(token)
