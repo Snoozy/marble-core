@@ -36,8 +36,12 @@ class Auth @Inject() (cache: Cache) {
 
     def logInSession(email: String, password: String): Option[String] = {
         val user = User.findByEmail(email)
-        if (user.isEmpty)
+        if (user.isEmpty) {
             throw new EmailDoesNotExist("Email does not exist.")
+        }
+        if (user.get.password.isEmpty) {
+            throw new LinkedFBAccount("Account linked through Facebook.")
+        }
         if (Etc.checkPass(password, user.get.password)) {
             Some(getNewUserSessionId(user.get.userId.get))
         } else
@@ -99,3 +103,5 @@ class Auth @Inject() (cache: Cache) {
 case class AuthTokenCookieExpired(message: String) extends Exception(message)
 
 case class EmailDoesNotExist(message: String) extends Exception(message)
+
+case class LinkedFBAccount(message: String) extends Exception(message)

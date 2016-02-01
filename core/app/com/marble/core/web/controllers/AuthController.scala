@@ -3,8 +3,7 @@ package com.marble.core.web.controllers
 import com.google.inject.Inject
 import com.marble.core.data.db.models._
 import com.marble.core.web.views.html.desktop.core
-import com.marble.utils.play.Auth
-import com.marble.utils.play.{Auth, EmailDoesNotExist}
+import com.marble.utils.play.{LinkedFBAccount, Auth, EmailDoesNotExist}
 import play.api.mvc._
 import com.marble.core.email._
 import play.api.libs.json.Json
@@ -189,6 +188,8 @@ class AuthController @Inject() (auth: Auth, cache: Cache) extends Controller {
                 } catch {
                     case e: EmailDoesNotExist =>
                         Ok(core.login(error = true, errorMessage = "Hmm, seems like that email does not exist.", email = email.get))
+                    case e: LinkedFBAccount =>
+                        Ok(core.login(error = true, errorMessage = "Hmm, try logging in with Facebook above.", email = email.get))
                 }
             } else {
                 Ok(core.login(error = true, errorMessage = "You need to fill in your email and password."))

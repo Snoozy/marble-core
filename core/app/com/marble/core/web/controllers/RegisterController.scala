@@ -4,12 +4,11 @@ import com.google.inject.Inject
 import com.marble.core.data.cache._
 import com.marble.core.data.cache
 import com.marble.core.data.db.models._
-import com.marble.core.email._
+import com.marble.core.email.MailTemplates
 import com.marble.utils.Etc
 import com.marble.utils.play.Auth
 import play.Play
 import play.api.mvc._
-import scala.concurrent.ExecutionContext.Implicits.global
 
 class RegisterController @Inject() (auth: Auth, c: Cache) extends Controller {
 
@@ -40,9 +39,8 @@ class RegisterController @Inject() (auth: Auth, c: Cache) extends Controller {
                     val token = auth.getNewUserSessionId(User.find(newUser.get.toInt).getOrElse(return BadRequest("Error.")).userId.get)
                     val sess = new cache.Session(c)(token)
                     sess.set("getting_started", "true")
-                    val firstName = Etc.parseFirstName(name.get)
                     if (Play.isProd) {
-                        sendWelcomeEmail(firstName, email.get)
+                        MailTemplates.sendWelcomeEmail(name.get, email.get)
                     }
                     Found("/").withCookies(auth.newSessionCookies(token))
                 }
@@ -53,30 +51,5 @@ class RegisterController @Inject() (auth: Auth, c: Cache) extends Controller {
         }.getOrElse(return BadRequest("Error."))
     }
 
-    def sendWelcomeEmail(firstName: String, email: String) = {
-        val sendEmail = Email(
-            subject = "Welcome to Cillo!",
-            from = EmailAddress("Cillo", "info@marble.co"),
-            text = emailTextGen(firstName),
-            htmlText = com.marble.core.web.views.html.email.welcome(firstName).toString()
-        ).to(firstName, email)
-        AsyncMailer.sendEmail(sendEmail)
-    }
-
-    private def emailTextGen(name: String): String = {
-        s"""Hey, $name \n Now that you have secured your spot on Cillo (nice!), you're ready to start
-           |exploring boards. \n\n What's a board? Boards are places for anyone to talk about anything. For example, you can: \n\n
-           |1. Talk about the latest sports game. \n
-           |2. Marvel at the latest high tech. \n
-           |3. Weigh in on the next election. \n
-           |4. See which movie to watch next. \n\n
-           |Hope to see you around!
-           |\n\n\n
-           |Facebook: https://www.facebook.com/CilloHQ
-           |Twitter: https://www.twitter.com/CilloHQ
-           |Google: https://plus.google.com/+CilloHQ
-           |Blog: http://blog.marble.co
-         """.stripMargin
-    }
 
 }

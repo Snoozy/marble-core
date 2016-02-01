@@ -1,10 +1,9 @@
 package com.marble.core.data.aws
 
-import java.io.{FileInputStream, InputStream, File}
+import java.io.{InputStream, File}
 import java.util.UUID
 import javax.imageio.ImageIO
-import com.marble.core.data.Constants
-import com.sun.xml.internal.messaging.saaj.util.ByteOutputStream
+import com.sksamuel.scrimage.nio.JpegWriter
 import play.api.libs.Files._
 import java.net.URL
 import org.apache.commons.io.FileUtils
@@ -19,7 +18,7 @@ import com.sksamuel.scrimage._
 
 object S3 {
 
-    private final val bucketName = "marble"
+    private final val bucketName = "cillo"
 
     def uploadImg(img: Image, profile: Boolean = false, file: Option[File] = None, original: Option[Image] = None, uuid: String = UUID.randomUUID().toString, format: String = "jpeg"): Option[Int] = {
         val aws_key = Play.current.configuration.getString("aws.key")
@@ -32,21 +31,22 @@ object S3 {
                 val metadata = new ObjectMetadata()
                 metadata.setContentType("image/" + (if(format == "gif") format else "jpeg"))
                 if (format != "gif") {
+                    implicit val writer = JpegWriter.Default
                     val normal = {
                         if (original.isDefined) {
-                            Image(original.get).constrain(2000, 2000).writer(Format.JPEG).toStream
+                            original.get.bound(2000, 2000).stream
                         } else {
-                            Image(img).constrain(2000, 2000).writer(Format.JPEG).toStream
+                            img.bound(2000, 2000).stream
                         }
                     }
                     if (!profile) {
                         val med = {
-                            Image(img).constrain(550, 550).writer(Format.JPEG).toStream
+                            img.bound(550, 550).stream
                         }
                         s3client.putObject(new PutObjectRequest(bucketName, key + "_med", med, metadata))
                     } else {
-                        val thumb: InputStream = Image(img).cover(50, 50).writer(Format.JPEG).toStream
-                        val prof = Image(img).cover(200, 200).writer(Format.JPEG).toStream
+                        val thumb: InputStream = img.cover(50, 50).stream
+                        val prof = img.cover(200, 200).stream
                         s3client.putObject(new PutObjectRequest(bucketName, key + "_small", thumb, metadata))
                         s3client.putObject(new PutObjectRequest(bucketName, key + "_prof", prof, metadata))
                     }
@@ -80,20 +80,20 @@ object S3 {
         val reader = ImageIO.getImageReaders(ImageIO.createImageInputStream(file)).next()
         val format = reader.getFormatName
         if (x.isDefined && y.isDefined && width.isDefined && height.isDefined) {
-            val temp = Image(file)
+            val temp = Image.fromFile(file)
             val imgWidth = temp.width
             val imgHeight = temp.height
             if (x.get > imgWidth || width.get > imgWidth || y.get > imgHeight || height.get > imgHeight) {
-                uploadImg(Image(file), profile = profile, format = reader.getFormatName)
+                uploadImg(Image.fromFile(file), profile = profile, format = reader.getFormatName)
             } else {
                 val img = temp.trim(x.get.toInt, y.get.toInt, imgWidth - (width.get.toInt + x.get.toInt), imgHeight - (height.get.toInt + y.get.toInt))
                 uploadImg(img, profile = profile, original = Some(temp))
             }
         } else {
             if (format != "gif") {
-                uploadImg(Image(file), profile = profile, format = format)
+                uploadImg(Image.fromFile(file), profile = profile, format = format)
             } else {
-                uploadImg(Image(file), profile = profile, format = format, file = Some(file))
+                uploadImg(Image.fromFile(file), profile = profile, format = format, file = Some(file))
             }
         }
     }

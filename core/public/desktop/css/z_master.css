@@ -3466,7 +3466,7 @@ div.play-button {
 
 .welcome-btns {
     margin-top: 9px;
-    margin-left: 43px;
+    float: right;
     vertical-align: top;
     display: inline-block;
 }
@@ -3474,6 +3474,14 @@ div.play-button {
 .signup-button, .login-button {
     padding: 8px 14px;
     font-size: 16px;
+}
+
+.board-wrapper:hover {
+    background-color: #f0f0f0;
+}
+
+.board-wrapper:hover .search-board-name-text {
+    text-decoration: underline;
 }
 
 .login-button {

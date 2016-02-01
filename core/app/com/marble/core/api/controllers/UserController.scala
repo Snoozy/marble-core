@@ -1,13 +1,15 @@
 package com.marble.core.api.controllers
 
+import akka.io.Tcp.Register
 import com.google.inject.Inject
 import com.marble.core.data.db.models._
-import com.marble.utils.play.Auth
+import com.marble.core.email.MailTemplates
 import com.marble.utils.play.Auth
 import play.api.libs.json.{JsObject, JsValue, Json}
 import com.marble.core.data.Constants
 import play.api.mvc._
 import com.marble.utils.play.errors._
+import com.marble.core.web.controllers.RegisterController
 
 /**
  * Handles User API requests including:
@@ -79,6 +81,7 @@ class UserController @Inject() (auth: Auth) extends Controller {
                         } else {
                             val newUser = User.register(name.get, password.get, email.get)
                             if (newUser.isDefined) {
+                                MailTemplates.sendWelcomeEmail(name.get, email.get)
                                 val auth_token = auth.getNewUserSessionId(newUser.get.toInt)
                                 Ok(Json.obj("user" -> User.toJsonByUserID(newUser.get.toInt),
                                     "auth_token" -> Json.toJson(auth_token)))

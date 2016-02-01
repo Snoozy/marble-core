@@ -42,7 +42,7 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
         }
     }
 
-    def reddit = auth.AuthAction { implicit user => implicit request =>
+    def reddit = Action {
         subreddits.foreach {
             case (key, value) =>
                 value.foreach { s =>
@@ -81,13 +81,13 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
                                             p.getURL.replace(".gifv", ".gif")
                                         }
                                     }
-                                    val testTitle = unescapeHtml4(p.getTitle)
                                     val id = uploadURL(url)
                                     if (id.isDefined) {
-                                        Post.createMediaPost(userId, testTitle, board.get.boardId.get, Seq(id.get), time = time)
+                                        Post.createMediaPost(userId, unescapeHtml4(p.getTitle), board.get.boardId.get, Seq(id.get), time = time)
                                     }
                                 } else {
-                                    Post.createSimplePost(userId, unescapeHtml4(p.getTitle), board.get.boardId.get, time = time)
+                                    val data = unescapeHtml4(p.getTitle) + "\n" + p.getUrl
+                                    Post.createSimplePost(userId, data, board.get.boardId.get, time = time)
                                 }
                             }
                         }

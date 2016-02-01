@@ -37,7 +37,6 @@ GET         /a/debug                         com.marble.core.web.controllers.Etc
 GET         /a/clean                         com.marble.core.web.controllers.EtcController.cleanS3
 GET         /a/thedayisnow                   com.marble.core.web.controllers.EtcController.reddit
 
-
 #POST
 POST        /signup                          com.marble.core.web.controllers.RegisterController.attemptRegister
 POST        /login                           com.marble.core.web.controllers.AuthController.attemptLogin
