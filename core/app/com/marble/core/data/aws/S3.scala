@@ -32,25 +32,33 @@ object S3 {
                 metadata.setContentType("image/" + (if(format == "gif") format else "jpeg"))
                 if (format != "gif") {
                     implicit val writer = JpegWriter.Default
-                    val normal = {
-                        if (original.isDefined) {
-                            original.get.bound(2000, 2000).stream
-                        } else {
-                            img.bound(2000, 2000).stream
-                        }
+                    val tempNormal = TemporaryFile()
+                    if (original.isDefined) {
+                            original.get.bound(2000, 2000).output(tempNormal.file)
+                    } else {
+                            img.bound(2000, 2000).output(tempNormal.file)
                     }
                     if (!profile) {
-                        val med = {
-                            img.bound(550, 550).stream
-                        }
-                        s3client.putObject(new PutObjectRequest(bucketName, key + "_med", med, metadata))
+                        val tempMed = TemporaryFile()
+                        img.bound(550, 550).output(tempMed.file)
+                        val obj = new PutObjectRequest(bucketName, key + "_med", tempMed.file)
+                        obj.setMetadata(metadata)
+                        s3client.putObject(obj)
                     } else {
-                        val thumb: InputStream = img.cover(50, 50).stream
-                        val prof = img.cover(200, 200).stream
-                        s3client.putObject(new PutObjectRequest(bucketName, key + "_small", thumb, metadata))
-                        s3client.putObject(new PutObjectRequest(bucketName, key + "_prof", prof, metadata))
+                        val tempThumb = TemporaryFile()
+                        val tempProf = TemporaryFile()
+                        img.cover(50, 50).output(tempThumb.file)
+                        img.cover(200, 200).output(tempProf.file)
+                        val temp = new PutObjectRequest(bucketName, key + "_small", tempThumb.file)
+                        val prof = new PutObjectRequest(bucketName, key + "_small", tempProf.file)
+                        temp.setMetadata(metadata)
+                        temp.setMetadata(metadata)
+                        s3client.putObject(temp)
+                        s3client.putObject(prof)
                     }
-                    s3client.putObject(new PutObjectRequest(bucketName, key, normal, metadata))
+                    val obj = new PutObjectRequest(bucketName, key, tempNormal.file)
+                    obj.setMetadata(metadata)
+                    s3client.putObject(obj)
                 } else {
                     if (file.isDefined) {
                         val obj = new PutObjectRequest(bucketName, key, file.get)
