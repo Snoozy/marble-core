@@ -61,7 +61,14 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
                                             p.getURL.replace(".gifv", ".gif")
                                         }
                                     }
-                                    val testTitle = unescapeHtml4(p.getTitle.replace("[OC]", "").substring(0, p.getTitle.indexOf("[")))
+                                    val testTitle = {
+                                        try {
+                                            unescapeHtml4(p.getTitle.replace("[OC]", "").substring(0, p.getTitle.indexOf("[")))
+                                        } catch {
+                                            case e: IndexOutOfBoundsException => unescapeHtml4(p.getTitle.replace("[OC]", ""))
+                                        }
+                                    }
+
                                     val id = uploadURL(url)
                                     if (id.isDefined) {
                                         Post.createMediaPost(userId, testTitle, board.get.boardId.get, Seq(id.get), time = time)
@@ -73,7 +80,7 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
                             subms.foreach { p =>
                                 val userId = users(Random.nextInt(users.size))
                                 val time = System.currentTimeMillis() - (Random.nextInt(13) * 1800000)
-                                if (p.getUrl.contains("imgur") && (!p.getUrl.contains("gallery") && !p.getUrl.contains("/a/"))) {
+                                if (p.getUrl.contains("imgur") && (!p.getUrl.contains("gallery") && !p.getUrl.contains("/a/")) && !p.getTitle.contains("r/")) {
                                     val url = {
                                         if (!p.getUrl.contains("i.imgur.com") && !p.getUrl.contains("gifv")) {
                                             p.getURL + ".jpg"

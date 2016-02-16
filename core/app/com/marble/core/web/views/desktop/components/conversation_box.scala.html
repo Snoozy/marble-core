@@ -1,5 +1,7 @@
 @(user: User, preview: String, read: Boolean, id: Int, active: Boolean = false)
 
+@import com.marble.core.data.db.models.User
+
 <div class="conversation-wrapper@if(active){ active}" data-conversation-id="@id">
     @if(!read && !active) {
         <div class="unread-indicator"></div>

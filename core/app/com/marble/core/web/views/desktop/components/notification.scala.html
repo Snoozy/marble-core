@@ -3,6 +3,7 @@
 @import com.marble.core.data.db.models.Enum.EntityType
 @import com.marble.core.data.db.models.Enum.ActionType
 @import com.marble.utils.Etc
+@import com.marble.core.data.db.models.{Notification, User}
 
 @defining(User.find(notification.titleUser)) { user =>
     <a href="@details._1" class="notification-redirect no-dec" style="color: inherit;">

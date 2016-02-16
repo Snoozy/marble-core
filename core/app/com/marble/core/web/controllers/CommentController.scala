@@ -36,7 +36,7 @@ class CommentController @Inject() (auth: Auth) extends Controller {
                     val parentId_raw = request.body.asFormUrlEncoded.flatMap(_.get("parent").map(_.head.toInt))
                     if (post.isDefined && data.isDefined) {
                         val parentId: Option[Int] = if (parentId_raw.isDefined && parentId_raw.get == 0) None else parentId_raw
-                        val commentId = Comment.create(postId, user.get.userId.get, data.get, parentId)
+                        val commentId = Comment.create(post.get.repostId.getOrElse(postId), user.get.userId.get, data.get, parentId)
                         if (commentId.isDefined) {
                             val board = Board.find(post.get.boardId)
                             val ctn = CommentTreeNode(Comment.find(commentId.get.toInt).get, Seq())

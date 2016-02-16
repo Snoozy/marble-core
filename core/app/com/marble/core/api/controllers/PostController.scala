@@ -94,7 +94,16 @@ class PostController @Inject() (auth: Auth) extends Controller {
     }
 
     def topComments(post_id: Int) = auth.ApiAuthAction { implicit user => implicit request =>
-        Ok(CommentTree.commentTreeToJson(CommentTree.getPostCommentsTop(post_id), user))
+        val post = Post.find(post_id)
+        if (post.isDefined) {
+            if (post.get.repostId.isDefined) {
+                Ok(CommentTree.commentTreeToJson(CommentTree.getPostCommentsTop(post.get.repostId.get), user))
+            } else {
+                Ok(CommentTree.commentTreeToJson(CommentTree.getPostCommentsTop(post.get.postId.get), user))
+            }
+        } else {
+            BadRequest(Json.obj("error" -> "Post does not exist."))
+        }
     }
 
 }

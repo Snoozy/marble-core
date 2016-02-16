@@ -27,7 +27,7 @@ case class Post (
 
 object Post {
 
-    val DefaultPageSize = 10
+    val DefaultPageSize = 15
 
     private[models] val postParser: RowParser[Post] = {
         get[Option[Int]]("post_id") ~

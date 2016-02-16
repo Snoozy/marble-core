@@ -1575,7 +1575,7 @@ strong:hover {
 .picture_upload {
     position: relative;
     overflow: hidden;
-    margin: 15px 10px 0 0;
+    margin: 12px 10px 0 0;
     float: left;
 }
 
@@ -3046,7 +3046,7 @@ input.signup-input:focus, input.signup-input:active {
 }
 
 .profile-pic-selector {
-    z-index: 2000;
+    z-index: 999;
     position: absolute;
     bottom: 0;
     left: 0;

@@ -4,7 +4,7 @@ object MarbleConfig {
 
     // REDIRECTION CONFIG
     final val RedirectHttp = true
-    final val RedirectMobile = true
+    final val RedirectMobile = false
     // should redirect themarble.co to www.themarble.co
     final val RedirectToWWW = true
 

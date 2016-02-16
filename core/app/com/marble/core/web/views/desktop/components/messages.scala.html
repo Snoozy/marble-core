@@ -1,6 +1,7 @@
 @(messages: Seq[Message],id: Int, me: User, other: User)
 
 @import com.marble.core.web.views.html.desktop.components
+@import com.marble.core.data.db.models.{User, Message}
 
 <div class="messages-header">
     <a href="/user/@other.username">

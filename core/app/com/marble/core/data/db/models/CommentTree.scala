@@ -21,6 +21,14 @@ object CommentTree {
         }
     }
 
+    def getPostCommentsTop(post: Post): CommentTree = {
+        if (post.repostId.isDefined) {
+            getPostCommentsTop(post.repostId.get)
+        } else {
+            getPostCommentsTop(post.postId.get)
+        }
+    }
+
     def getCommentTree(comment: Comment): CommentTree = {
         DB.withConnection { implicit connection =>
             val path = comment.path + "/" + EncodeDecode.encodeNum(comment.commentId.get) + "%"
@@ -38,6 +46,10 @@ object CommentTree {
         DB.withConnection { implicit connection =>
             SQL("SELECT * FROM comment WHERE post_id = {id} AND path = \"\" AND status = 0").on('id -> postId).as(commentParser *)
         }
+    }
+
+    def getTopRootComments(post: Post): Seq[Comment] = {
+        getTopRootComments(post.repostId.getOrElse(post.postId.get))
     }
 
     def getCommentNumChildren(commentId: Int): Int = {

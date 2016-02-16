@@ -12,6 +12,7 @@
 
 @import com.marble.core.web.views.html.desktop.components
 @import com.marble.utils.Etc
+@import com.marble.core.data.db.models.{User, Post, Comment, Board, PostVote, Media, CommentTree, CommentTreeNode}
 
 <li class="post box-shadow-apply" data-item-id="@post.postId.get">
     <div class="post-wrapper">
@@ -126,11 +127,11 @@
                             @if(repost.get.media.nonEmpty) {
                                 @defining(Media.find(repost.get.media.head)) { m =>
                                     <div class="post-picture-container">
-                                        <a class="fancybox" href="@m.get.mediaUrl">
-                                            @if(m.get.mediaType == 1) {
-                                                <img src="@m.get.mediaUrl" class="post-picture">
-                                            } else {
-                                                <img src="@(m.get.mediaUrl + "_med")" class="post-picture">
+                                        <a class="fluidbox" href="@m.get.mediaUrl">
+                                        @if(m.get.mediaType == 1) {
+                                            <img src="@(m.get.mediaUrl)" class="post-picture">
+                                        } else {
+                                            <img src="@(m.get.mediaUrl + "_med")" class="post-picture">
                                             }
                                         </a>
                                     </div>
@@ -191,7 +192,7 @@
             </div>
 
                 @if(!expanded) {
-                    @defining(CommentTree.getTopRootComments(post.postId.get)) { comments =>
+                    @defining(CommentTree.getTopRootComments(post)) { comments =>
                         @if(comments.nonEmpty) {
                             <hr class="hr-no-margin comment-hr">
                         }
@@ -239,7 +240,7 @@
                     }
                 } else {
                     @if(singleComment.isEmpty) {
-                        @defining(CommentTree.getPostCommentsTop(post.postId.get)) { comments =>
+                        @defining(CommentTree.getPostCommentsTop(post)) { comments =>
                             @if(comments.rootComments.nonEmpty) {
                                 <hr class="hr-no-margin comment-hr">
                             }

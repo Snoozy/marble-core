@@ -3,6 +3,7 @@ package com.marble.core.data.db.models
 import anorm.SqlParser._
 import anorm._
 import com.google.inject.Inject
+import com.marble.core.data.cache.Cache
 import com.marble.core.data.cache.Session
 import com.marble.core.data.db.models.Comment.commentParser
 import com.marble.core.data.db.models.Post.postParser
@@ -10,12 +11,15 @@ import com.marble.utils.Etc.makeDigest
 import play.api.Play.current
 import com.marble.core.data.Constants
 import org.apache.commons.lang3.RandomStringUtils
+import play.api.cache.Cache
 import play.api.db._
 import play.api.libs.json._
+import play.api.Play.current
 import com.marble.core.data.cache.Cache
 import com.marble.utils.Email._
+import play.inject.ApplicationLifecycle
 
-case class User @Inject() (
+case class User (
     userId: Option[Int],
     username: String,
     name: String,
@@ -26,10 +30,14 @@ case class User @Inject() (
     session: Option[Session] = None
 ) {
     lazy val admin: Boolean = {
-        if (token.isDefined) {
-            new Session(cache)(token.get).get("admin").isDefined
-        } else
-            false
+        if (session.isEmpty) {
+            if (token.isDefined) {
+                new Session(cache)(token.get).get("admin").isDefined
+            } else
+                false
+        } else {
+            session.get.get("admin").isDefined
+        }
     }
 
     lazy val userInfo = UserInfo.find(userId.get).get
@@ -54,8 +62,6 @@ object User {
     private val DefaultPhotoString = "default"
     private val ImageURLBase = "https://static.themarble.co/image/"
 
-    @Inject val cache: Cache = null
-
     private[data] val userParser: RowParser[User] = {
         get[Option[Int]]("user_id") ~
             get[String]("username") ~
@@ -63,6 +69,7 @@ object User {
             get[Option[Int]]("photo") ~
             get[Option[String]]("photo_name") map {
             case userId ~ username ~ name ~ photo ~ photoName =>
+                val cache: Cache = current.injector.instanceOf[Cache]
                 if (photo.isDefined && photoName.isDefined) {
                     User(userId, username, name, ImageURLBase + photoName.get, photo.get, cache)
                 } else {
