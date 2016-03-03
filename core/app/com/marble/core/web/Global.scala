@@ -28,17 +28,17 @@ object Global extends WithFilters() with GlobalSettings {
             Some(EtcController.redirectHttp)
         } else if (host == "themarble.co" && MarbleConfig.RedirectToWWW) {
             Some(Action{MovedPermanently("https://www.themarble.co" + request.uri)})
-        } else if (ua.isDefined && MarbleConfig.RedirectMobile) {
-            val uaInfo = new UAgentInfo(ua.get, request.headers.get("Accept").getOrElse(""))
-            if (uaInfo.isMobilePhone) {
-                if (!host.startsWith("m.")) {
-                    Some(Action{MovedPermanently("https://m.themarble.co" + request.uri)})
-                } else {
-                    super.onRouteRequest(request)
-                }
-            } else {
-                super.onRouteRequest(request)
-            }
+//        } else if (ua.isDefined && MarbleConfig.RedirectMobile) {
+//            val uaInfo = new UAgentInfo(ua.get, request.headers.get("Accept").getOrElse(""))
+//            if (uaInfo.isMobilePhone) {
+//                if (!host.startsWith("m.")) {
+//                    Some(Action{Redirect("https://m.themarble.co" + request.uri)})
+//                } else {
+//                    super.onRouteRequest(request)
+//                }
+//            } else {
+//                super.onRouteRequest(request)
+//            }
         } else {
             super.onRouteRequest(request)
         }

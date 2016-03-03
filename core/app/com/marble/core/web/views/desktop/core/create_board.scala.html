@@ -33,7 +33,7 @@
                     @if(error != "") {
                         <div class="error-message">@error</div>
                     }
-                    <form role="form" method="post" action="/boards/create">
+                    <form role="form" method="post" action="/boards/create" style="padding:0px 40px 20px;">
                         <div class="form-board">
                             <input type="text" class="form-control" id="nameInput" name="name" value="@name" placeholder="Board Name" required>
                             <p class="help-block">Unique name that identifies your board.</p>
