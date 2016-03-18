@@ -32,10 +32,11 @@ GET         /a/conversation/:id/paged        com.marble.core.web.controllers.Mes
 GET         /a/conversation/:id/poll         com.marble.core.web.controllers.MessageController.poll(id: Int)
 GET         /a/conversation/:id              com.marble.core.web.controllers.MessageController.getConversation(id: Int)
 
-GET         /a/wassup                        com.marble.core.web.controllers.EtcController.refresh
+GET         /a/purge                         com.marble.core.web.controllers.EtcController.refresh
 GET         /a/debug                         com.marble.core.web.controllers.EtcController.debug
 GET         /a/clean                         com.marble.core.web.controllers.EtcController.cleanS3
 GET         /a/thedayisnow                   com.marble.core.web.controllers.EtcController.reddit
+GET         /a/cleanPosts                    com.marble.core.web.controllers.EtcController.cleanPosts
 
 #POST
 POST        /signup                          com.marble.core.web.controllers.RegisterController.attemptRegister

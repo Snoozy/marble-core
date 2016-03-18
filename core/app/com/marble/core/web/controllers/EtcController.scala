@@ -12,6 +12,10 @@ import com.amazonaws.services.s3.model.{DeleteObjectRequest, S3ObjectSummary}
 import com.marble.core.data.cache.Redis
 import play.api.{Logger, Play}
 import play.api.mvc._
+import anorm.SqlParser._
+import anorm._
+import play.api.Play.current
+import play.api.db._
 import com.marble.utils.play.Auth
 import com.marble.utils.reddit.Reddit
 import com.marble.core.data.db.models._
@@ -25,7 +29,8 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
 
     val subreddits = Map[String, List[String]]("worldnews" -> List("worldnews", "news"), "earthpics" -> List("earthporn"),
         "nba" -> List("nba"), "programming" -> List("programming", "programmerhumor"), "soccer" -> List("soccer"), "politics" -> List("politics"),
-        "tech" -> List("technology"), "sports" -> List("sports"), "funny" -> List("funny"), "food" -> List("food", "foodporn"), "music" -> List("music"), "Supernatural" -> List("supernatural"))
+        "tech" -> List("technology"), "sports" -> List("sports"), "funny" -> List("funny"), "food" -> List("food", "foodporn"), "music" -> List("music"),
+        "Supernatural" -> List("supernatural"), "PrettyLittleLiars" -> List("PrettyLittleLiars"), "Suits" -> List("Suits"))
     val users = Vector(2, 3, 4, 8, 13, 14, 12, 10)
 
     def debug = Action { implicit request =>
@@ -40,6 +45,13 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
         } else {
             Found("/")
         }
+    }
+
+    def cleanPosts = auth.AuthAction { implicit user => implicit request =>
+        if (user.get.admin || Play.isDev) {
+            Post.cleanPosts
+        }
+        Ok("asdf")
     }
 
     def reddit = Action {
@@ -93,8 +105,11 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
                                         Post.createMediaPost(userId, unescapeHtml4(p.getTitle), board.get.boardId.get, Seq(id.get), time = time)
                                     }
                                 } else {
-                                    val data = unescapeHtml4(p.getTitle) + "\n" + p.getUrl
-                                    Post.createSimplePost(userId, data, board.get.boardId.get, time = time)
+                                    if (!p.getURL.contains("reddit") && !p.getURL.contains("r/")) {
+                                        "\n" + p.getURL
+                                        val data = unescapeHtml4(p.getTitle) + "\n" + p.getURL
+                                        Post.createSimplePost(userId, data, board.get.boardId.get, time = time)
+                                    }
                                 }
                             }
                         }

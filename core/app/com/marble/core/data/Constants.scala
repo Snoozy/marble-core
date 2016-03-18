@@ -21,6 +21,14 @@ object Constants {
         }
     }
 
+    val TestBoards = {
+        if (Play.isDev) {
+            Seq[Int](1, 1, 1, 1, 1, 1, 1, 1, 1)
+        } else {
+            Seq[Int](9, 15, 16, 17, 8, 1, 5, 6, 31, 32, 33, 13, 29, 26, 27, 30, 14, 23, 25, 18, 19, 20, 21, 22)
+        }
+    }
+
     val FeaturedBoards = {
         if (Play.isDev) {
             Seq[Int](1,1,1,1)

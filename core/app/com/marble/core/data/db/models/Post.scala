@@ -217,4 +217,13 @@ object Post {
         }.mkString("")
     }
 
+    def cleanPosts: Unit = {
+        val posts = Post.getAll
+        posts.foreach { post =>
+            if (post.data.contains("reddit")) {
+                deletePost(post.postId.get)
+            }
+        }
+    }
+
 }

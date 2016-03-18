@@ -1,7 +1,5 @@
 .outside-box {
-    width: 75%;
-    min-width: 900px;
-    max-width: 1200px;
+    width: 780px;
     background-color: #fff;
     border: 1px solid rgba(200,200,200,1);
     border-radius: 4px;
@@ -2047,60 +2045,6 @@ body {
     font-weight: bold;
 }
 
-.notfollowing .board-follow-btn {
-}
-
-.following .board-follow-btn,
-.following {
-    background-color: #019ad2;
-    border-color: #057ed0;
-}
-
-.following .board-follow-btn:focus,
-.following:focus {
-    background-color: #019ad2;
-    border-color: #057ed0;
-    color: #fdfdfd;
-}
-
-.following .board-follow-btn:hover .following-text,
-.following:hover .following-text{
-    display: none;
-}
-
-.notfollowing .follow-text {
-    display: block;
-    color: #2f2f2f;
-}
-
-.notfollowing .following-text {
-    display: none;
-}
-
-.notfollowing .unfollow-text {
-    display: none;
-}
-
-.following .follow-text {
-    display: none;
-}
-
-.following .board-follow-btn:hover .unfollow-text,
-.following:hover .unfollow-text {
-    display: block;
-}
-
-.following .board-follow-btn:hover,
-.following:hover {
-    background-color: #be1931;
-    border-color: #be1931;
-    color: #fdfdfd;
-}
-
-.following .unfollow-text {
-    display: none;
-}
-
 .board-posts-container {
     margin-top: 10px;
     display: inline-block;
@@ -3516,4 +3460,114 @@ div.play-button {
 
 .forgot-password-anchor:hover {
     color: #aaa;
+}
+
+.interest-boards {
+    margin-top: 15px;
+}
+
+.interest-item {
+    border-radius: 10px;
+    float: left;
+    padding: 6px;
+    margin: 0 10px 20px;
+    box-sizing: border-box;
+    border: 1px solid #fff;
+}
+
+.notfollowing .item-selected {
+    display: none;
+}
+
+.following .item-selected {
+    display: block;
+}
+
+.interest-item:hover {
+    border: 1px solid rgba(200,200,200,1);
+    box-sizing: border-box;
+}
+
+.item-inner {
+    box-shadow: 0 1px 2px 0 rgba(0,0,0,0.22);
+    border-radius: 6px;
+    height: 148px;
+    position: relative;
+    width: 148px;
+    transition: transform .1s ease-in-out;
+}
+
+.item-inner:active {
+    transform: scale(0.95);
+}
+
+.item-selected .check {
+    width: 35px;
+    height: 35px;
+    background: url("https://static.themarble.co/checkmark.png");
+    margin: 54px;
+    position: absolute;
+    z-index: 102;
+}
+
+.item-selected .mask {
+    background-color: #000;
+    border-radius: 6px;
+    height: 148px;
+    opacity: 0.5;
+    position: absolute;
+    top: 0;
+    z-index: 101;
+    width: 148px;
+    cursor: pointer;
+}
+
+.item-wrapper {
+    cursor: pointer;
+    box-shadow: none;
+    height: 148px;
+    overflow: hidden;
+    border-radius: 6px;
+    display: block;
+    position: relative;
+    transition: transform .1s ease-in-out;
+    width: 100%;
+    text-align: left;
+}
+
+.interest-image {
+    background: #fff center;
+    background-size: cover;
+    border-radius: 6px;
+    display: block;
+    height: 100%;
+    position: relative;
+    -webkit-transition: opacity .1s ease-in-out;
+    transition: opacity .1s ease-in-out;
+    width: 100%;
+    cursor: pointer;
+}
+
+.interest-item:hover .interest-image {
+    opacity: .9;
+}
+
+.interest-label {
+    bottom: 0;
+    position: absolute;
+    width: 100%;
+    z-index: 102;
+    cursor: pointer;
+}
+
+.interest-label-text {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: #fff;
+    font-size: 14px;
+    line-height: 1.1;
+    padding: 10px;
+    text-shadow: 0 0 3px #000, -1px -1px 5px rgba(0,0,0, 0.5);
+    white-space: normal;
+    font-weight: bold;
 }

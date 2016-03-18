@@ -29,7 +29,7 @@ class IndexController @Inject() (auth: Auth, cache: Cache) extends Controller {
         if (cached.isDefined) {
             Ok(cached.get).as(HTML)
         } else {
-            val comp = com.marble.core.web.views.html.desktop.core.getting_started(Constants.GettingStartedBoards, Constants.FeaturedBoards)
+            val comp = com.marble.core.web.views.html.desktop.core.getting_started(Constants.TestBoards)
             cache.setex("gettingStarted_cache", comp.toString(), expire = 3600)
             Ok(comp)
         }
