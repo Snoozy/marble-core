@@ -52,7 +52,7 @@ class AuthController @Inject() (auth: Auth) extends Controller {
                     val deviceToken = form.get("device_token").map(_.head)
                     if (deviceToken.isDefined && !AppleDeviceToken.getDeviceTokens(user.get.userId.get).contains(deviceToken.get)) {
                         AppleDeviceToken.createToken(user.get.userId.get, deviceToken.get)
-                        Ok(Json.obj("success" -> "Device token acknowledged"))
+                        Ok(Json.obj("success" -> "New Device Token acknowledged"))
                     } else {
                         Ok(Json.obj("success" -> "Ping acknowledged"))
                     }

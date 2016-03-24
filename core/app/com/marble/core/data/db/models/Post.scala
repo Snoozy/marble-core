@@ -2,6 +2,8 @@ package com.marble.core.data.db.models
 
 import anorm.SqlParser._
 import anorm._
+import com.marble.core.api.apple.PNController
+import com.marble.core.config.MarbleConfig
 import com.marble.core.data.db.models.Comment.commentParser
 import com.marble.core.data.db.models.Enum.EntityType
 import com.marble.utils.Etc.{bool2int, int2bool}
@@ -63,6 +65,10 @@ object Post {
             val repostExists = Post.find(repostId.get)
             if (repostExists.isEmpty)
                 return None
+        }
+        val board = Board.find(boardId)
+        if (board.isDefined) {
+            PNController.sendNotification(MarbleConfig.SuperUser, "New post on " + board.get.name)
         }
 
         DB.withConnection { implicit connection =>

@@ -5,6 +5,8 @@ import anorm._
 import com.marble.core.data.db.models.Enum.{ActionType, EntityType}
 import com.marble.utils.EncodeDecode
 import play.api.Play.current
+import com.marble.core.api.apple.PNController
+import com.marble.core.config.MarbleConfig
 import play.api.db._
 import play.api.libs.json.{JsObject, JsValue, Json}
 
@@ -87,6 +89,12 @@ object Comment {
             case Some(_) =>
                 val parent = Comment.find(parentId.get, status = None).getOrElse(return None)
                 parent.path + "/" + EncodeDecode.encodeNum(parent.commentId.get)
+        }
+
+        val post = Post.find(postId)
+        if (post.isDefined) {
+            val board = Board.find(post.get.boardId)
+            PNController.sendNotification(MarbleConfig.SuperUser, "New comment on " + board.get.name)
         }
 
         val time = System.currentTimeMillis()
