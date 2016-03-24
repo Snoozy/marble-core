@@ -3264,6 +3264,68 @@ div.play-button {
     color: #fff;
 }
 
+.follow-unfollow-buttons.following .btn.following-btn {
+    display: block;
+}
+
+.follow-unfollow-buttons.not-following .btn.follow-btn {
+    display: block;
+}
+
+.notfollowing .board-follow-btn {
+}
+
+.following .board-follow-btn,
+.following {
+    background-color: #019ad2;
+    border-color: #057ed0;
+}
+
+.following .board-follow-btn:focus,
+.following:focus {
+    background-color: #019ad2;
+    border-color: #057ed0;
+    color: #fdfdfd;
+}
+
+.following .board-follow-btn:hover .following-text,
+.following:hover .following-text{
+    display: none;
+}
+
+.notfollowing .follow-text {
+    display: block;
+    color: #2f2f2f;
+}
+
+.notfollowing .following-text {
+    display: none;
+}
+
+.notfollowing .unfollow-text {
+    display: none;
+}
+
+.following .follow-text {
+    display: none;
+}
+
+.following .board-follow-btn:hover .unfollow-text,
+.following:hover .unfollow-text {
+    display: block;
+}
+
+.following .board-follow-btn:hover,
+.following:hover {
+    background-color: #be1931;
+    border-color: #be1931;
+    color: #fdfdfd;
+}
+
+.following .unfollow-text {
+    display: none;
+}
+
 .message-content:after {
     clear: both;
     content: ".";
@@ -3475,11 +3537,11 @@ div.play-button {
     border: 1px solid #fff;
 }
 
-.notfollowing .item-selected {
+.notclicked .item-selected {
     display: none;
 }
 
-.following .item-selected {
+.clicked .item-selected {
     display: block;
 }
 

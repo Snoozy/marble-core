@@ -69,7 +69,7 @@
                         @for(i <- boards) {
                             @defining(Board.find(i)) { board =>
                                 @if(board.isDefined) {
-                                    <div class="interest-item notfollowing" data-group-id="@board.get.boardId.get">
+                                    <div class="interest-item notclicked" data-group-id="@board.get.boardId.get">
                                         <div class="item-inner">
                                             <div class="item-selected">
                                                 <div class="check">&nbsp;</div>
@@ -102,11 +102,11 @@
 
                 var index = 0;
 
-                $(document).on('click', '.notfollowing', function(e) {
+                $(document).on('click', '.notclicked', function(e) {
                     var group_id = $(this).data('group-id');
                     var $this = $(this);
-                    $this.addClass('following');
-                    $this.removeClass('notfollowing');
+                    $this.addClass('cicked');
+                    $this.removeClass('notclicked');
                     $.ajax({
                         url: '/a/group/' + group_id + '/follow',
                         type: 'POST',
@@ -116,11 +116,11 @@
                     return false;
                 });
 
-                $(document).on('click', '.following', function() {
+                $(document).on('click', '.clicked', function() {
                     var group_id = $(this).data('group-id');
                     var $this = $(this);
-                    $this.addClass('notfollowing');
-                    $this.removeClass('following');
+                    $this.addClass('notclicked');
+                    $this.removeClass('clicked');
                     $.ajax({
                         url: '/a/group/' + group_id + '/unfollow',
                         type: 'POST',

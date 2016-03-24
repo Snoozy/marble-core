@@ -17,20 +17,19 @@ object PNController {
     private val certPath: String = Play.current.configuration.getString("apns.certPath").getOrElse("")
     private val certPassword: String = Play.current.configuration.getString("apns.certPassword").getOrElse("")
 
-    def sendNotification(userId: Int, message: String) = {
-        val tokens = AppleDeviceToken.getDeviceTokens(userId)
-        val payload = APNS.newPayload().alertBody(message).build()
-        val res = service.push(tokens, payload)
-        res.foreach(n => n.marshall())
-        clearInactive()
+    def sendNotification(userId: Int, message: String): Unit = {
+        Akka.system.scheduler.scheduleOnce(10.milliseconds) {
+            val tokens = AppleDeviceToken.getDeviceTokens(userId)
+            val payload = APNS.newPayload().alertBody(message).build()
+            service.push(tokens, payload)
+            clearInactive()
+        }
     }
 
-    private def clearInactive(): Unit = {
-        Akka.system.scheduler.scheduleOnce(10.milliseconds) {
-            val inactive = service.getInactiveDevices
-            for ((token, date) <- inactive) {
-                AppleDeviceToken.deleteToken(token)
-            }
+    private def clearInactive() = {
+        val inactive = service.getInactiveDevices
+        for ((token, date) <- inactive) {
+            AppleDeviceToken.deleteToken(token)
         }
     }
 
