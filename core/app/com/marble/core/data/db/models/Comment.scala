@@ -18,7 +18,8 @@ case class Comment (
     time: Long,
     path: String,
     votes: Int,
-    status: Int
+    status: Int,
+    media: Seq[Int]
 )
 
 object Comment {
@@ -31,9 +32,11 @@ object Comment {
             get[Long]("time") ~
             get[String]("path") ~
             get[Int]("votes") ~
-            get[Int]("status") map {
-            case commentId ~ postId ~ userId ~ data ~ time ~ path ~ votes ~ status =>
-                Comment(commentId, postId, userId ,data, time, path, votes, status)
+            get[Int]("status") ~
+            get[String]("media") map {
+            case commentId ~ postId ~ userId ~ data ~ time ~ path ~ votes ~ status ~ media =>
+                val media_ids = media.split("~").filter(_ != "").map(_.toInt)
+                Comment(commentId, postId, userId ,data, time, path, votes, status, media_ids)
         }
     }
 
@@ -83,7 +86,7 @@ object Comment {
         }
     }
 
-    def create(postId: Int, userId: Int, data: String, parentId: Option[Int], notif: Boolean = true): Option[Long] = {
+    def create(postId: Int, userId: Int, data: String, parentId: Option[Int], media: Option[Seq[Int]] = None, notif: Boolean = true): Option[Long] = {
         val path = parentId match {
             case None => ""
             case Some(_) =>
@@ -99,11 +102,19 @@ object Comment {
             }
         }
 
+        val mediaString = {
+            if (media.isDefined) {
+                media.mkString("~")
+            } else {
+                ""
+            }
+        }
+
         val time = System.currentTimeMillis()
 
         DB.withConnection { implicit connection =>
-            val ret: Option[Long] = SQL("INSERT INTO comment (post_id, user_id, data, path, time, votes) VALUES ({post_id}, {user_id}, {data}," +
-                "{path}, {time}, 0)").on('post_id -> postId, 'user_id -> userId, 'path -> path, 'data -> data, 'time -> time).executeInsert()
+            val ret: Option[Long] = SQL("INSERT INTO comment (post_id, user_id, data, path, time, votes, media) VALUES ({post_id}, {user_id}, {data}," +
+                "{path}, {time}, 0)").on('post_id -> postId, 'user_id -> userId, 'path -> path, 'data -> data, 'time -> time, 'media -> mediaString).executeInsert()
             if (ret.isDefined) {
                 SQL("UPDATE post SET comment_count = comment_count + 1 WHERE post_id = {post_id}")
                     .on('post_id -> postId).executeUpdate()

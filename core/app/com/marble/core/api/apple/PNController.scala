@@ -18,11 +18,13 @@ object PNController {
     private val certPassword: String = Play.current.configuration.getString("apns.certPassword").getOrElse("")
 
     def sendNotification(userId: Int, message: String): Unit = {
-        Akka.system.scheduler.scheduleOnce(10.milliseconds) {
-            val tokens = AppleDeviceToken.getDeviceTokens(userId)
-            val payload = APNS.newPayload().alertBody(message).build()
-            service.push(tokens, payload)
-            clearInactive()
+        if (Play.isProd) {
+            Akka.system.scheduler.scheduleOnce(10.milliseconds) {
+                val tokens = AppleDeviceToken.getDeviceTokens(userId)
+                val payload = APNS.newPayload().alertBody(message).build()
+                service.push(tokens, payload)
+                clearInactive()
+            }
         }
     }
 

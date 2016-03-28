@@ -1,6 +1,8 @@
 package com.marble.core.web.controllers
 
 import com.google.inject.Inject
+import com.marble.core.data.Constants
+import com.marble.core.data.aws.S3
 import com.marble.core.data.db.models._
 import com.marble.core.web.views.html.desktop.components
 import com.marble.core.web.views.html.desktop.core
@@ -8,6 +10,7 @@ import com.marble.utils.Etc._
 import com.marble.utils.play.Auth
 import play.api.libs.json.Json
 import play.api.mvc._
+import play.api.libs.Files
 
 class PostController @Inject() (auth: Auth) extends Controller {
 
@@ -92,46 +95,21 @@ class PostController @Inject() (auth: Auth) extends Controller {
     }
 
     private def processPost(request: Request[AnyContent], user: User): Result = {
-        val body: AnyContent = request.body
-        body.asFormUrlEncoded.map { form =>
+        val body = request.body.asMultipartFormData
+        if (body.isDefined) {
             try {
+                val form = body.get.asFormUrlEncoded
                 val data = form.get("data").map(_.head)
                 val board_name = form.get("board_name").map(_.head)
-                val mediaIds = form.get("media").map(_.head)
+                val mediaIds: Seq[Int] = uploadMedia(body.get.files.filter(_.key.matches(MediaIdentifier.toString())))
                 if (data.isDefined && board_name.isDefined) {
                     val board = Board.find(board_name.get)
                     if (board.isDefined) {
                         val newPost = {
-                            if (user.admin) {
-                                val newUserName = form.get("user").map(_.head)
-                                if (newUserName.isDefined && newUserName.get != "") {
-                                    val newUserId = {
-                                        val userExists = User.find(newUserName.get)
-                                        if (userExists.isDefined) {
-                                            userExists.get.userId.get
-                                        } else {
-                                            User.create(User.genUsername(newUserName.get + "@marble.co"), newUserName.get, newUserName.get, newUserName.get + "@marble.co", None).get.toInt
-                                        }
-                                    }
-                                    val newUser = User.find(newUserId)
-                                    if (mediaIds.isEmpty || mediaIds.get == "") {
-                                        Post.createSimplePost(newUser.get.userId.get, data.get, board.get.boardId.get)
-                                    } else {
-                                        Post.createMediaPost(newUser.get.userId.get, data.get, board.get.boardId.get, mediaIds.get.split("~").map(_.toInt))
-                                    }
-                                } else {
-                                    if (mediaIds.isEmpty || mediaIds.get == "") {
-                                        Post.createSimplePost(user.userId.get, data.get, board.get.boardId.get)
-                                    } else {
-                                        Post.createMediaPost(user.userId.get, data.get, board.get.boardId.get, mediaIds.get.split("~").map(_.toInt))
-                                    }
-                                }
+                            if (mediaIds.isEmpty) {
+                                Post.createSimplePost(user.userId.get, data.get, board.get.boardId.get)
                             } else {
-                                if (mediaIds.isEmpty || mediaIds.get == "") {
-                                    Post.createSimplePost(user.userId.get, data.get, board.get.boardId.get)
-                                } else {
-                                    Post.createMediaPost(user.userId.get, data.get, board.get.boardId.get, mediaIds.get.split("~").map(_.toInt))
-                                }
+                                Post.createMediaPost(user.userId.get, data.get, board.get.boardId.get, mediaIds)
                             }
                         }
                         if (newPost.isDefined)
@@ -144,11 +122,37 @@ class PostController @Inject() (auth: Auth) extends Controller {
                 } else
                     BadRequest("Invalid request.")
             } catch {
-                case e: java.lang.NumberFormatException => return BadRequest("Invalid parameters.")
+                case e: java.lang.NumberFormatException => BadRequest("Invalid parameters.")
             }
-        }.getOrElse {
-            BadRequest("Only json or form url encoded content types accepted.")
+        } else {
+            BadRequest("Invalid format.")
         }
     }
+
+    private final val MediaIdentifier = "^media-\\S.*$".r
+
+    private def uploadMedia(files: Seq[MultipartFormData.FilePart[Files.TemporaryFile]]): Seq[Int] = {
+        val res = files.map { media =>
+            val mediaFile = media.ref.file
+            if (mediaFile.length() > Constants.MaxMediaSize)
+                -1
+            else {
+                val id = S3.upload(mediaFile)
+                if (id.isEmpty)
+                    -1
+                else {
+                    id.get
+                }
+            }
+        }
+
+        if (!res.contains(-1)) {
+            res
+        } else {
+            throw new MediaUploadException("Media failed to upload")
+        }
+    }
+
+    case class MediaUploadException(message: String) extends RuntimeException(message)
 
 }

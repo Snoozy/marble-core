@@ -767,8 +767,11 @@ $(document).ready(function() {
             for (var key in media_form_data) {
                 formData.append(key, media_form_data[key]);
             }
+            formData.append("data", post_content);
+            formData.append("board_name", post_board);
+            formData.append("user", user);
             $.ajax({
-                url: '/a/upload',
+                url: '/a/post',
                 type: 'POST',
                 dataType: 'json',
                 contentType: false,
@@ -778,36 +781,22 @@ $(document).ready(function() {
                     $('.first-post').css('opacity', '0.6');
                 },
                 success: function(response) {
-                    media_ids = response.media_ids.join("~");
-                    $.ajax({
-                        url: "/a/post",
-                        type: "POST",
-                        dataType: "json",
-                        data: {
-                            "data": post_content,
-                            "board_name": post_board,
-                            "media": media_ids,
-                            "user": user
-                        },
-                        success: function (response) {
-                            $(response.item_html).hide().fadeIn(1000).css('display', 'block').insertAfter('.first-post').find('a.fluidbox').fluidbox({immediateOpen: true})
-                                .on('openstart', function() {$('html').addClass('noscroll');})
-                                .on('closeend', function() {$('html').removeClass('noscroll');});
-                            $('textarea.post-form').val('');
-                            $('.post-board').val('');
-                            $('.previews').empty();
-                            $('.thumbnail-container').addClass('displaynone');
-                            collapseFirstPost();
-                            $('.first-post').css('opacity', '1');
-                            reset_form();
-                        },
-                        error: function () {
-                            alert("Unexpected error. Please try again later.");
-                        },
-                        complete: function () {
+                    $(response.item_html).hide().fadeIn(1000).css('display', 'block').insertAfter('.first-post').find('a.fluidbox').fluidbox({immediateOpen: true})
+                        .on('openstart', function() {$('html').addClass('noscroll');})
+                        .on('closeend', function() {$('html').removeClass('noscroll');});
+                    $('textarea.post-form').val('');
+                    $('.post-board').val('');
+                    $('.previews').empty();
+                    $('.thumbnail-container').addClass('displaynone');
+                    collapseFirstPost();
+                    $('.first-post').css('opacity', '1');
+                    reset_form();
+                },
+                error: function () {
+                    alert("Unexpected error. Please try again later.");
+                },
+                complete: function () {
 
-                        }
-                    });
                 }
             });
         } else {
