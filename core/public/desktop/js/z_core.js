@@ -179,7 +179,7 @@ $(document).ready(function() {
                 type: 'POST',
                 dataType: 'json',
                 success: function() {
-                    $comment.children('.comment-avatar').html('<img src="https://static.cillo.co/image/anon_small" class="avatar" style="height:32px;width:32px;border-radius:3px;"/>');
+                    $comment.children('.comment-avatar').html('<img src="https://static.themarble.co/image/anon_small" class="avatar" style="height:32px;width:32px;border-radius:3px;"/>');
                     $comment.children('.commenter-anchor').remove();
                     $('<strong style="font-weight:500;margin-right:2px;margin-left:5px;" class="deleted-user">[deleted]</strong>').insertAfter($comment.children('.comment-avatar'));
                     $comment.children('.comment-content').text('[comment deleted]');

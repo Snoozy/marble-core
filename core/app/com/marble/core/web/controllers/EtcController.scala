@@ -83,7 +83,7 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
 
                                     val id = uploadURL(url)
                                     if (id.isDefined) {
-                                        Post.createMediaPost(userId, testTitle, board.get.boardId.get, Seq(id.get), time = time)
+                                        Post.createMediaPost(userId, testTitle, board.get.boardId.get, Seq(id.get), time = time, notif = false)
                                     }
                                 }
                             }
@@ -102,13 +102,13 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
                                     }
                                     val id = uploadURL(url)
                                     if (id.isDefined) {
-                                        Post.createMediaPost(userId, unescapeHtml4(p.getTitle), board.get.boardId.get, Seq(id.get), time = time)
+                                        Post.createMediaPost(userId, unescapeHtml4(p.getTitle), board.get.boardId.get, Seq(id.get), time = time, notif = false)
                                     }
                                 } else {
                                     if (!p.getURL.contains("reddit") && !p.getURL.contains("r/")) {
                                         "\n" + p.getURL
                                         val data = unescapeHtml4(p.getTitle) + "\n" + p.getURL
-                                        Post.createSimplePost(userId, data, board.get.boardId.get, time = time)
+                                        Post.createSimplePost(userId, data, board.get.boardId.get, time = time, notif = false)
                                     }
                                 }
                             }

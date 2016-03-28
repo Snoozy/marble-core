@@ -83,7 +83,7 @@ object Comment {
         }
     }
 
-    def create(postId: Int, userId: Int, data: String, parentId: Option[Int]): Option[Long] = {
+    def create(postId: Int, userId: Int, data: String, parentId: Option[Int], notif: Boolean = true): Option[Long] = {
         val path = parentId match {
             case None => ""
             case Some(_) =>
@@ -91,10 +91,12 @@ object Comment {
                 parent.path + "/" + EncodeDecode.encodeNum(parent.commentId.get)
         }
 
-        val post = Post.find(postId)
-        if (post.isDefined) {
-            val board = Board.find(post.get.boardId)
-            PNController.sendNotification(MarbleConfig.SuperUser, "New comment on " + board.get.name)
+        if (notif) {
+            val post = Post.find(postId)
+            if (post.isDefined) {
+                val board = Board.find(post.get.boardId)
+                PNController.sendNotification(MarbleConfig.SuperUser, "New comment on " + board.get.name)
+            }
         }
 
         val time = System.currentTimeMillis()

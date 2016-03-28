@@ -59,16 +59,19 @@ object Post {
         }
     }
 
-    def createSimplePost(userId: Int, data: String, boardId: Int, repostId: Option[Int] = None, time: Long = System.currentTimeMillis()): Option[Long] = {
+    def createSimplePost(userId: Int, data: String, boardId: Int, repostId: Option[Int] = None, time: Long = System.currentTimeMillis(), notif: Boolean = true): Option[Long] = {
         // checking that data is a number if post is a repost
         if (repostId.isDefined) {
             val repostExists = Post.find(repostId.get)
             if (repostExists.isEmpty)
                 return None
         }
-        val board = Board.find(boardId)
-        if (board.isDefined) {
-            PNController.sendNotification(MarbleConfig.SuperUser, "New post on " + board.get.name)
+
+        if (notif) {
+            val board = Board.find(boardId)
+            if (board.isDefined) {
+                PNController.sendNotification(MarbleConfig.SuperUser, "New post on " + board.get.name)
+            }
         }
 
         DB.withConnection { implicit connection =>
@@ -82,11 +85,18 @@ object Post {
         }
     }
 
-    def createMediaPost(userId: Int, data: String, boardId: Int, mediaIds: Seq[Int], time: Long = System.currentTimeMillis()): Option[Long] = {
+    def createMediaPost(userId: Int, data: String, boardId: Int, mediaIds: Seq[Int], time: Long = System.currentTimeMillis(), notif: Boolean = true): Option[Long] = {
 
         mediaIds.foreach(id => if (Media.find(id).isEmpty) return None)
 
         val mediaString = mediaIds.mkString("~")
+
+        if (notif) {
+            val board = Board.find(boardId)
+            if (board.isDefined) {
+                PNController.sendNotification(MarbleConfig.SuperUser, "New post on " + board.get.name)
+            }
+        }
 
         DB.withConnection { implicit connection =>
             val id: Option[Long] = SQL("INSERT INTO post (user_id, data, board_id, votes, time, comment_count, media) values ({user_id}, {data}," +
