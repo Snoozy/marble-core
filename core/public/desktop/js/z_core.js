@@ -616,11 +616,11 @@ $(document).ready(function() {
             if (parent === undefined) {
                 parent = 0;
             }
-            if ($.trim(comment)) {
+            var previews = $this.closest('.comment-input').find('.comment-thumbnail-container').find('.previews');
+            if ($.trim(comment) || previews.children().length > 0) {
                 var formdata = new FormData();
                 formdata.append("data", comment);
                 formdata.append("parent", parent);
-                var previews = $this.closest('.comment-input').find('.comment-thumbnail-container').find('.previews');
                 if (previews.children().length > 0) {
                     var id = previews.children(':first').data('upload-id');
                     formdata.append("media", comment_media_upload[id]);
@@ -649,6 +649,10 @@ $(document).ready(function() {
                         } else {
                             $(response.item_html).hide().fadeIn(1000).css('display', 'block').insertAfter($this.closest('.comment-form').siblings('.comment-start-marker'));
                         }
+                        $('.fluidbox').fluidbox({
+                            immediateOpen: true
+                        }).on('openstart', function() {$('html').addClass('noscroll');})
+                            .on('closeend', function() {$('html').removeClass('noscroll');});
                     },
                     complete: function () {
                         if ($this.closest('.comment-form').hasClass('comment-reply')) {
