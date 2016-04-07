@@ -2,22 +2,21 @@
 
 @import com.marble.core.data.db.models.{User, Board}
 
-<li class="post first-post box-shadow-apply">
-    <div class="posting-wrapper" style="margin-left:45px;">
+<li class="post first-post box-shadow-apply" style="min-height: 143px;">
+    <div class="posting-wrapper" style="margin-left:54px;">
         <div class="first-post-avatar-wrapper">
-            <img class="post-avatar" src="@(user.photo + "_small")" style="margin-left:-41px;width:34px;height:34px;margin-top:0;vertical-align:baseline;">
+            <img class="post-avatar" src="@(user.photo + "_small")" style="margin-left:-50px;width:40px;height:40px;margin-top:0;vertical-align:baseline;">
         </div>
-        <textarea data-expanded-height="50" class="post-form form-control" name="post-form" style="width:100%;max-height:34px;" placeholder="Say something..."></textarea>
+        <textarea class="post-form form-control" name="post-form" style="width:100%;min-height:70px;" placeholder="Say something..."></textarea>
         <div class="thumbnail-container displaynone">
             <div class="previews"></div>
         </div>
-        <div class="picture_upload btn btn-default displaynone" style="padding:4px 10px;">
-            <span class="glyphicon glyphicon-camera"></span>
+        <div class="picture_upload btn btn-default" style="padding: 7px 10px 4px 10px;">
+            <span class="glyphicon glyphicon-camera" style="font-size: 18px;"></span>
             <input type="file" name="picture upload" id="picture_file_upload" class="file-input" tabindex="-1" accept="image/*" multiple>
         </div>
-        <button class="btn btn-primary post-submit displaynone" style="margin-top:14px;">Post</button>
-        <div class="post-board-wrapper displaynone">
-            <span class="post-board-text displaynone">on Board:</span>
+        <button class="btn btn-primary post-submit" style="margin-top:9px;">Post</button>
+        <div class="post-board-wrapper">
             <select class="chosen-select post-board form-control" id="post-board-select" data-placeholder="Select a Board" style="width:300px;margin-top:6px;">
                 @if(!boardPage) {
                     <option></option>

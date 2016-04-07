@@ -103,8 +103,8 @@ object Comment {
         }
 
         val mediaString = {
-            if (media.isDefined) {
-                media.mkString("~")
+            if (media.isDefined && media.get.nonEmpty) {
+                media.get.mkString("~")
             } else {
                 ""
             }
@@ -114,7 +114,7 @@ object Comment {
 
         DB.withConnection { implicit connection =>
             val ret: Option[Long] = SQL("INSERT INTO comment (post_id, user_id, data, path, time, votes, media) VALUES ({post_id}, {user_id}, {data}," +
-                "{path}, {time}, 0)").on('post_id -> postId, 'user_id -> userId, 'path -> path, 'data -> data, 'time -> time, 'media -> mediaString).executeInsert()
+                "{path}, {time}, 0, {media})").on('post_id -> postId, 'user_id -> userId, 'path -> path, 'data -> data, 'time -> time, 'media -> mediaString).executeInsert()
             if (ret.isDefined) {
                 SQL("UPDATE post SET comment_count = comment_count + 1 WHERE post_id = {post_id}")
                     .on('post_id -> postId).executeUpdate()

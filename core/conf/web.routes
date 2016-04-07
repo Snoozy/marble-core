@@ -58,7 +58,6 @@ POST        /a/post/:id/delete               com.marble.core.web.controllers.Pos
 POST        /a/comment/:id/delete            com.marble.core.web.controllers.CommentController.deleteComment(id: Int)
 POST        /a/group/:id/follow              com.marble.core.web.controllers.BoardController.followBoard(id: Int)
 POST        /a/group/:id/unfollow            com.marble.core.web.controllers.BoardController.unfollowBoard(id: Int)
-POST        /a/upload                        com.marble.core.web.controllers.MediaController.upload
 POST        /a/setPass                       com.marble.core.web.controllers.AuthController.setPassword
 POST        /a/changePass                    com.marble.core.web.controllers.AuthController.changePassword
 POST        /a/notifications/read            com.marble.core.web.controllers.NotificationController.readNotifications

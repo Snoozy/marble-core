@@ -828,8 +828,8 @@ strong {
 	-moz-border-radius: 5px;
 	border-radius: 3px;
     margin-top:4px;
-    height: 48px;
-    width: 48px;
+    height: 40px;
+    width: 40px;
 }
 
 .board-avatar .user-avatar{
@@ -1204,7 +1204,7 @@ strong:hover {
 
 .margin-maker {
     position: relative;
-    margin-left: 57px;
+    margin-left: 50px;
 }
 
 .post {
@@ -1223,7 +1223,7 @@ strong:hover {
 }
 
 .posting-wrapper {
-    padding: 12px 17px 12px 12px;
+    padding: 13px 17px 12px 12px;
     position: relative;
 }
 
@@ -1573,7 +1573,7 @@ strong:hover {
 .picture_upload {
     position: relative;
     overflow: hidden;
-    margin: 12px 10px 0 0;
+    margin: 8px 10px 0 0;
     float: left;
 }
 
@@ -1650,7 +1650,8 @@ body.modal-open {
 }
 
 .post-board-wrapper {
-    margin-top: 10px;
+    margin-top: 5px;
+    margin-left: 90px;
 }
 
 .post-user {
@@ -1916,7 +1917,7 @@ body {
 
 .post-avatar-wrapper {
     float: left;
-    margin-left: -57px;
+    margin-left: -50px;
 }
 
 .p-action-anchor:focus {
@@ -2131,6 +2132,7 @@ strong {
     height:34px;
     width:100%;
     overflow:auto;
+    padding-right: 36px;
     resize:none;
     margin-bottom:0px;
 }
@@ -2202,10 +2204,13 @@ strong {
     border: 1px solid #ccc;
     border-top: none;
     background-color: #f1f1f1;
+    border-bottom-right-radius: 3px;
+    border-bottom-left-radius: 3px;
 }
 
 .post-form-with-thumbnails {
-    border-radius: 0px;
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
 }
 
 .remove-post-image {
@@ -2219,11 +2224,37 @@ strong {
     height: 17px;
 }
 
-.remove-post-image:hover {
+.remove-comment-image {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #222;
+    color: #f5f5f5;
+    border: none;
+    opacity: .75;
+    height: 17px;
+}
+
+.remove-post-image:hover, .remove-comment-image:hover {
     opacity: 1;
 }
 
 .preview {
+    display: inline-block;
+    position: relative;
+    margin-right: 5px;
+}
+
+.comment-text-input {
+    position: relative;
+}
+
+.comment-val.with-thumbs {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.comment-preview {
     display: inline-block;
     position: relative;
     margin-right: 5px;
@@ -3632,4 +3663,18 @@ div.play-button {
     text-shadow: 0 0 3px #000, -1px -1px 5px rgba(0,0,0, 0.5);
     white-space: normal;
     font-weight: bold;
+}
+
+.comment-pic-upload {
+    position: absolute;
+    font-size: 18px;
+    bottom: -1px;
+    right: 3px;
+    opacity: 0.7;
+    padding: 3px 8px;
+    overflow: hidden;
+}
+
+.comment-pic-upload:hover {
+    opacity: 1;
 }

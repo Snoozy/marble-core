@@ -1692,7 +1692,7 @@ output {
   display: block;
   width: 100%;
   height: 34px;
-  padding: 6px 12px;
+  padding: 6px 9px;
   font-size: 14px;
   line-height: 1.42857143;
   color: #555;
@@ -1708,8 +1708,8 @@ output {
 .form-control:focus {
   border-color: #66afe9;
   outline: 0;
-  -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
-          box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);
+  /*-webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);*/
+          /*box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102, 175, 233, .6);*/
 }
 .form-control::-moz-placeholder {
   color: #999;
@@ -5238,6 +5238,8 @@ button.close {
   text-decoration: none;
   background-color: #000;
   border-radius: 4px;
+  white-space:nowrap;
+  max-width:none;
 }
 .tooltip-arrow {
   position: absolute;

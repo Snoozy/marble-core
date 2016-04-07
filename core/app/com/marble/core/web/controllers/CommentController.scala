@@ -8,6 +8,7 @@ import com.marble.core.web.views.html.desktop.components
 import com.marble.utils.Etc._
 import play.api.mvc._
 import play.api.libs.json.Json
+import com.marble.core.web.controllers.MediaController._
 
 class CommentController @Inject() (auth: Auth) extends Controller {
 
@@ -31,24 +32,30 @@ class CommentController @Inject() (auth: Auth) extends Controller {
             case None => BadRequest(Json.obj("error" -> "User not authenticated."))
             case Some(_) =>
                 val post = Post.find(postId)
-                val data = request.body.asFormUrlEncoded.flatMap(_.get("data").flatMap(_.headOption))
-                try {
-                    val parentId_raw = request.body.asFormUrlEncoded.flatMap(_.get("parent").map(_.head.toInt))
-                    if (post.isDefined && data.isDefined) {
-                        val parentId: Option[Int] = if (parentId_raw.isDefined && parentId_raw.get == 0) None else parentId_raw
-                        val commentId = Comment.create(post.get.repostId.getOrElse(postId), user.get.userId.get, data.get, parentId)
-                        if (commentId.isDefined) {
-                            val board = Board.find(post.get.boardId)
-                            val ctn = CommentTreeNode(Comment.find(commentId.get.toInt).get, Seq())
-                            Ok(Json.obj("status" -> "success", "item_html" -> compressHtml(components.comment(ctn, user, board.get, post.get.userId)(expanded = false, root = parentId.isEmpty).toString())))
+                val body = request.body.asMultipartFormData
+                if (body.isDefined) {
+                    val data = body.get.asFormUrlEncoded.get("data").map(_.head)
+                    try {
+                        val parentId_raw = body.get.asFormUrlEncoded.get("parent").map(_.head.toInt)
+                        if (post.isDefined && data.isDefined) {
+                            val parentId: Option[Int] = if (parentId_raw.isDefined && parentId_raw.get == 0) None else parentId_raw
+                            val mediaIds: Seq[Int] = uploadMedia(body.get.files.filter(_.key.matches(MediaIdentifier.toString())))
+                            val commentId = Comment.create(post.get.repostId.getOrElse(postId), user.get.userId.get, data.get, parentId, media = Some(mediaIds))
+                            if (commentId.isDefined) {
+                                val board = Board.find(post.get.boardId)
+                                val ctn = CommentTreeNode(Comment.find(commentId.get.toInt).get, Seq())
+                                Ok(Json.obj("status" -> "success", "item_html" -> compressHtml(components.comment(ctn, user, board.get, post.get.userId)(expanded = false, root = parentId.isEmpty).toString())))
+                            } else {
+                                BadRequest(Json.obj("error" -> "Request invalid."))
+                            }
                         } else {
-                            BadRequest(Json.obj("error" -> "Request invalid."))
+                            BadRequest(Json.obj("error" -> "Request format invalid."))
                         }
-                    } else {
-                        BadRequest(Json.obj("error" -> "Request format invalid."))
+                    } catch {
+                        case e: NumberFormatException => BadRequest(Json.obj("error" -> "Request invalid."))
                     }
-                } catch {
-                    case e: NumberFormatException => BadRequest(Json.obj("error" -> "Request invalid."))
+                } else {
+                    BadRequest(Json.obj("error" -> "Request invalid. Must be multipart form data."))
                 }
         }
     }
