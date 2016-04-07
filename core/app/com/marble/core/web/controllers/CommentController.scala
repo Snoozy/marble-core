@@ -39,7 +39,7 @@ class CommentController @Inject() (auth: Auth) extends Controller {
                         val parentId_raw = body.get.asFormUrlEncoded.get("parent").map(_.head.toInt)
                         if (post.isDefined && data.isDefined) {
                             val parentId: Option[Int] = if (parentId_raw.isDefined && parentId_raw.get == 0) None else parentId_raw
-                            val mediaIds: Seq[Int] = uploadMedia(body.get.files.filter(_.key.matches(MediaIdentifier.toString())))
+                            val mediaIds: Seq[Int] = uploadMedia(body.get.files.filter(_.key == "media"))
                             val commentId = Comment.create(post.get.repostId.getOrElse(postId), user.get.userId.get, data.get, parentId, media = Some(mediaIds))
                             if (commentId.isDefined) {
                                 val board = Board.find(post.get.boardId)

@@ -442,19 +442,6 @@ $(document).ready(function() {
         $(this).removeClass('error-border');
     });
 
-    // $(document).on('focus', '.comment-val', function() {
-    //     $(this).css('min-height', '84px');
-    //     $(this).siblings('.comment-submit-btn').removeClass('displaynone');
-    // });
-
-    // $(document).on('blur', '.comment-val', function() {
-    //     if (!$.trim($(this).val())) {
-    //         $(this).css('height', '34px');
-    //         $(this).css('min-height', '0');
-    //         $(this).siblings('.comment-submit-btn').addClass('displaynone');
-    //     }
-    // });
-
     autosize($('.comment-val'));
 
     $(document).on('click', '.action-link-comment', function() {
@@ -607,7 +594,6 @@ $(document).ready(function() {
         e.preventDefault();
         var reply_form = $(this).closest('.comments-container').find('.comment-form').first().clone();
         reply_form.addClass('comment-reply');
-        reply_form.find('.comment-submit-btn').attr('value', 'Reply');
         reply_form.attr('data-reply-id', $(this).closest('.comment').data('comment-id'));
         reply_form.find('.comment-val').attr('placeholder', 'Reply to comment...');
         var $comment_cont = $(this).closest('.comment-actions').siblings('.comment-children-container');
@@ -650,6 +636,9 @@ $(document).ready(function() {
                     contentType: false,
                     processData: false,
                     data: formdata,
+                    beforeSend: function() {
+                        $comment_form.find('.comment-val').val('');
+                    },
                     success: function (response, textStatus, jqXHR) {
                         if (parent > 0) {
                             if ($this.closest('.comment-form').siblings('.comment').length > 0) {
@@ -662,8 +651,12 @@ $(document).ready(function() {
                         }
                     },
                     complete: function () {
-                        $comment_form.find('.comment-val').val('');
-                        $comment_form.find('.comment-val').focus();
+                        if ($this.closest('.comment-form').hasClass('comment-reply')) {
+                            $this.closest('.comment-form').remove();
+                        } else {
+                            $comment_form.find('.comment-val').val('');
+                            $comment_form.find('.comment-val').focus();
+                        }
                     }
                 });
             }
@@ -672,11 +665,11 @@ $(document).ready(function() {
 
     });
 
-    $(document).on('blur', '.comment-reply .comment-val', function() {
-        if (!$.trim($(this).val())) {
-            $(this).closest('.comment-reply').remove();
-        }
-    });
+    // $(document).on('blur', '.comment-reply .comment-val', function() {
+    //     if (!$.trim($(this).val())) {
+    //         $(this).closest('.comment-reply').remove();
+    //     }
+    // });
 
     function readURL(file, rand) {
         var reader = new FileReader();
@@ -760,6 +753,7 @@ $(document).ready(function() {
             comment_media_upload[id] = file;
             read_comment_media_url(file, id, $(this).closest('.comment-input'));
         }
+        $(this).closest('.comment-text-input').find('.comment-val').focus();
         $(this).replaceWith($(this).clone());
     });
 

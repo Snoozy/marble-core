@@ -44,7 +44,7 @@ object CommentTree {
 
     def getTopRootComments(postId: Int): Seq[Comment] = {
         DB.withConnection { implicit connection =>
-            SQL("SELECT * FROM comment WHERE post_id = {id} AND path = \"\" AND status = 0").on('id -> postId).as(commentParser *)
+            SQL("SELECT * FROM comment WHERE post_id = {id} AND path = \"\" AND status = 0 ORDER BY votes desc").on('id -> postId).as(commentParser *)
         }
     }
 

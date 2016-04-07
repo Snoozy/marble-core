@@ -78,7 +78,8 @@ class BoardController @Inject() (auth: Auth) extends Controller {
     def createBoardPage = auth.AuthAction { implicit user => implicit request =>
         user match {
             case None => Redirect("/")
-            case Some(_) => Ok(core.create_board(user.get))
+            case Some(_) =>
+                Ok(core.create_board(user.get, name = request.getQueryString("name").getOrElse("")))
         }
     }
 
