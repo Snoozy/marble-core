@@ -196,7 +196,7 @@ object Etc {
             }
         } else {
             val parsed = {
-                if (raw.substring(0, 7).indexOf(':') < 0) {
+                if (!raw.contains("http")) {
                     "http://" + raw
                 } else {
                     raw

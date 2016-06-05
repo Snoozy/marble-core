@@ -91,7 +91,7 @@ object Comment {
             case None => ""
             case Some(_) =>
                 val parent = Comment.find(parentId.get, status = None).getOrElse(return None)
-                parent.path + "/" + EncodeDecode.encodeNum(parent.commentId.get)
+                parent.path.substring(0, parent.path.indexOf('/')) + "/" + EncodeDecode.encodeNum(parent.commentId.get)
         }
 
         if (notif) {

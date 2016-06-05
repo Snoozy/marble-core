@@ -38,6 +38,8 @@ GET         /a/clean                         com.marble.core.web.controllers.Etc
 GET         /a/thedayisnow                   com.marble.core.web.controllers.EtcController.reddit
 GET         /a/cleanPosts                    com.marble.core.web.controllers.EtcController.cleanPosts
 
+GET         /a/names                         com.marble.core.web.controllers.EtcController.names
+
 #POST
 POST        /signup                          com.marble.core.web.controllers.RegisterController.attemptRegister
 POST        /login                           com.marble.core.web.controllers.AuthController.attemptLogin

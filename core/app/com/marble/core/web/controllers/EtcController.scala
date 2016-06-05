@@ -153,6 +153,18 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
         Ok("J0A36Wu0RAqN8-ToJjNl4CKi9vmcTIg0Htdj2UY84Lk.cDTgG2uynuYfvHRAybJzIzg48HAXFMuyjPd5bQ66U2I")
     }
 
+    def names = Action {
+        val users = User.getAll
+        users.foreach { user =>
+            val split = user.name.split(" ", 2)
+            if (split.length == 2) {
+                User.setName(user.userId.get, split(0), split(1))
+            } else {
+                User.setName(user.userId.get, split(0), "")
+            }
+        }
+        Ok("done")
+    }
 }
 
 object EtcController extends Controller {

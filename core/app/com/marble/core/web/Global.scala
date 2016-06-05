@@ -5,9 +5,11 @@ import com.marble.core.web.controllers.EtcController
 import play.api.Play.current
 import play.api.mvc.Results._
 import play.api.mvc._
-import play.api.{Application, GlobalSettings, Play}
+import play.api.{Application, GlobalSettings, Logger, Play}
+
 import scala.concurrent.ExecutionContext.Implicits.global
 import com.marble.utils.UAgentInfo
+
 import scala.concurrent.Future
 
 object Global extends WithFilters() with GlobalSettings {
@@ -46,6 +48,7 @@ object Global extends WithFilters() with GlobalSettings {
 
     override def onError(request: RequestHeader, ex: Throwable) = {
         if (Play.isProd) {
+            Logger.info(ex.getMessage)
             Future.successful(InternalServerError("Oops. Something broke..."))
         } else {
             super.onError(request, ex)

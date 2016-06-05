@@ -51,7 +51,11 @@ body {
 
 body:after {
     display: none;
-    content: url(https://static.themarble.co/upvote-arrow.png) url(https://static.themarble.co/upvoted-arrow.png) url(https://static.themarble.co/downvote-arrow.png) url(https://static.themarble.co/downvoted-arrow.png) url(https://static.themarble.co/dropdown-arrow.png) url(https://static.themarble.co/loading2.gif) url(https://static.themarble.co/fancybox_sprite.png) url(https://static.themarble.co/fancybox_loading.gif) url(https://static.themarble.co/blank.gif) url(https://static.themarble.co/fancybox_overlay.png) url(https://static.themarble.co/fancybox_sprite@2x.png) url(https://static.themarble.co/fancybox_loading@2x.gif);
+    content: url(https://static.themarble.co/upvote-arrow.png) url(https://static.themarble.co/upvoted-arrow.png)
+    url(https://static.themarble.co/downvote-arrow.png) url(https://static.themarble.co/downvoted-arrow.png) url(https://static.themarble.co/dropdown-arrow.png)
+    url(https://static.themarble.co/loading2.gif) url(https://static.themarble.co/fancybox_sprite.png) url(https://static.themarble.co/fancybox_loading.gif)
+    url(https://static.themarble.co/blank.gif) url(https://static.themarble.co/fancybox_overlay.png) url(https://static.themarble.co/fancybox_sprite@2x.png)
+    url(https://static.themarble.co/fancybox_loading@2x.gif);
 }
 
 .inside-box {
@@ -2196,7 +2200,7 @@ strong {
     margin-left: 37px;
     margin-top: 10px;
     padding-left: 10px;
-    border-left: 1px solid #e1e8ed;
+    border-left: 2px solid rgb(220, 222, 227);
 }
 
 .comment-children-container:empty {
@@ -2287,6 +2291,23 @@ strong {
     z-index: 1051;
 }
 
+.commenter-username {
+    color: #999;
+    font-size: 13px;
+}
+
+.commenter-anchor {
+    text-decoration: none !important;
+}
+
+.commenter-anchor:hover strong {
+    text-decoration: underline;
+}
+
+.commenter-anchor strong {
+    margin-right: 3px;
+}
+
 .repost-content {
     padding-left: 20px;
     margin-left: 4px;
@@ -2368,9 +2389,8 @@ h2 {
 }
 
 .root-comment {
-    margin-left: -12px;
+    margin-left: -10px;
     padding-left: 10px;
-    border-left: 2px solid rgb(220, 222, 227);
 }
 
 a.no-dec:hover, a.no-dec:focus, a.no-dec:active, a.no-dec {
@@ -3212,11 +3232,10 @@ div.play-button {
     background-color: rgba(0,0,0,0.75);
 }
 
-.op-post {
+.op-post strong {
     padding: 0 4px;
     border-radius: 3px;
-    background-color: #02518A;
-    color: #fff;
+    background-color: #E1F0F6;
 }
 
 .conversations-container {
@@ -3431,14 +3450,9 @@ div.play-button {
     border-radius: 50%;
 }
 
-.op-post:hover {
-    background-color: #31719F;
-    color: #fff;
-    text-decoration: none !important;
-}
-
-.op-post strong {
-    color: #fff;
+.op-post:hover strong {
+    background-color: #E1F0F6;
+    text-decoration: underline !important;
 }
 
 .no-conversations {
@@ -3700,4 +3714,10 @@ div.play-button {
 
 .comment-pic-upload:hover {
     opacity: 1;
+}
+
+.comment-children-container.child {
+    margin-left: 0;
+    padding-left: 0;
+    border: none;
 }

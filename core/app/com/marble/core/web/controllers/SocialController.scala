@@ -60,6 +60,8 @@ class SocialController @Inject() (auth: Auth, cache: Cache, fbSession: FB) exten
                 }
             }
             val fbName = (info \ "name").as[String]
+            val firstName = (info \ "first_name").as[String]
+            val lastName = (info \ "last_name").as[String]
             val username = {
                 if (fbEmail.isDefined)
                     User.genUsername(fbEmail.get)
@@ -72,7 +74,7 @@ class SocialController @Inject() (auth: Auth, cache: Cache, fbSession: FB) exten
                         Some(id.get)
                 } else None
             }
-            val newUser = User.create(username, if(fbName.length < 21) fbName else fbName.substring(0, 20) , "", fbEmail.getOrElse(""), None, pic = pic)
+            val newUser = User.create(username, firstName, lastName, "", fbEmail.getOrElse(""), None, pic = pic)
             if (newUser.isDefined) {
                 SocialUser.createFBUser(fbId, newUser.get.toInt)
                 val sess_token = auth.getNewUserSessionId(User.find(newUser.get.toInt).get.userId.get)

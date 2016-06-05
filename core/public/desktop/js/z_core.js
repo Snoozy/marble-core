@@ -591,18 +591,22 @@ $(document).ready(function() {
             $('#signup-modal').modal();
             return false;
         }
+        var root = $(this).hasClass('root');
         e.preventDefault();
         var reply_form = $(this).closest('.comments-container').find('.comment-form').first().clone();
         reply_form.addClass('comment-reply');
-        reply_form.attr('data-reply-id', $(this).closest('.comment').data('comment-id'));
+        reply_form.attr('data-reply-id', $(this).closest('.root-comment').children('.comment').data('comment-id'));
         reply_form.find('.comment-val').attr('placeholder', 'Reply to comment...');
+        if (!root) {
+            reply_form.addClass('child-reply');
+        }
         var $comment_cont = $(this).closest('.comment-actions').siblings('.comment-children-container');
-        if ($comment_cont.find('.comment-form').length == 0) {
+        if ($comment_cont.children('.comment-form').length == 0) {
             $comment_cont.prepend(reply_form);
         }
         $comment_cont.find('.comment-val')[0].removeAttribute('data-autosize-on');
         autosize($('textarea'));
-        $comment_cont.find('.comment-val').focus();
+        $comment_cont.find('.comment-val')[0].focus();
     });
 
 

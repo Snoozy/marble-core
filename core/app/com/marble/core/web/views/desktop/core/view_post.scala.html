@@ -8,12 +8,6 @@
 @import com.marble.utils.Etc
 
 @components.base(if(post.data.length > 1){Etc.ellipsize(post.data, 300) + " - Marble"}else{poster.get.name + "'s post on " + board.get.name + " - Marble"}) {
-    <style>
-        .comment-children-container {
-            border-top: 1px solid #e1e8ed;
-        }
-    </style>
-
     <head prefix="og: http://ogp.me/ns# fb: http://ogp.me/ns/fb# marbleapp: http://ogp.me/ns/fb/marbleapp#">
 
     <meta property="og:url" content="https://www.marble.co/@board.get.name/posts/@post.postId.get" />
@@ -26,14 +20,14 @@
         } else {
             <meta property="og:title" content="@poster.get.name's post on @board.get.name" />
         }
-        <meta property="og:description" content="@post.votes upvotes and @post.commentCount comments so far on Marble">
+        <meta property="og:description" content="Join the conversation on Marble">
     } else {
         @if(repost.get.data.length > 1) {
             <meta property="og:title" content="@Etc.ellipsize(repost.get.data, 300)" />
         } else {
             <meta property="og:title" content="@poster.get.name's post on @board.get.name" />
         }
-        <meta property="og:description" content="@repost.get.votes upvotes and @repost.get.commentCount comments so far on Marble">
+        <meta property="og:description" content="Join the conversation on Marble">
     }
     @if(media.nonEmpty) {
         <meta property="og:image" content="@media.head.get.mediaUrl" />
@@ -46,7 +40,7 @@
         <div class="page" style="margin:0px;">
             @components.masthead(user, searchBar = true)()
             <div id="content">
-                <div class="container-fluid inner-background" style="width: 900px;">
+                <div class="container-fluid inner-background" style="max-width: 700px;">
                     @if(user.isEmpty) {
                         @components.convince_signup(board.get)
                     }

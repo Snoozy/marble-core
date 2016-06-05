@@ -10,7 +10,7 @@
 @import com.marble.core.data.db.models._
 @import com.marble.core.web.views.html.desktop.components
 
-<div class="@if(root){root-comment }comment-container">
+<div class="@if(root){root-comment }comment-container" data-commenter-username="@commenter.username">
     <div class="comment" data-comment-id="@commentTreeNode.comment.commentId.get" data-post-id="@commentTreeNode.comment.postId">
         @if(commentTreeNode.comment.status == 1) {
             <div class="comment-avatar">
@@ -26,7 +26,7 @@
                 </a>
             </div>
             <a href="/user/@commenter.username" style="margin-right:2px;margin-left:5px;" class="commenter-anchor@if(originalPoster == commentTreeNode.comment.userId){ op-post}">
-                <strong>@commenter.name</strong>
+                <strong>@commenter.name</strong><span class="commenter-username">@@@commenter.username</span>
             </a>
         }
         @if(timestamp) {
@@ -74,7 +74,7 @@
                 </a>
                 <span class="c-action-separator"> · </span>
             }
-            <a href="#" class="c-action reply">
+            <a href="#" class="c-action reply@if(root){ root}">
                 <span class="color-blue">Reply</span>
             </a>
                 <div class="comment-options-dropdown dropdown">
@@ -99,7 +99,7 @@
                     </ul>
                 </div>
         </div>
-        <div class="comment-children-container">
+        <div class="comment-children-container@if(!root) { child}">
             @if(expanded) {
                 @for(child <- commentTreeNode.children) {
                     @components.comment(child, user, board, originalPoster)(expanded = expanded)

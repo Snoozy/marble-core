@@ -23,6 +23,8 @@ case class User (
     userId: Option[Int],
     username: String,
     name: String,
+    firstName: String,
+    lastName: String,
     photo: String,
     photoId: Int,
     cache: Cache,
@@ -65,15 +67,16 @@ object User {
     private[data] val userParser: RowParser[User] = {
         get[Option[Int]]("user_id") ~
             get[String]("username") ~
-            get[String]("name") ~
+            get[String]("first_name") ~
+            get[String]("last_name") ~
             get[Option[Int]]("photo") ~
             get[Option[String]]("photo_name") map {
-            case userId ~ username ~ name ~ photo ~ photoName =>
+            case userId ~ username ~ firstName ~ lastName ~ photo ~ photoName =>
                 val cache: Cache = current.injector.instanceOf[Cache]
                 if (photo.isDefined && photoName.isDefined) {
-                    User(userId, username, name, ImageURLBase + photoName.get, photo.get, cache)
+                    User(userId, username, firstName + " " + lastName, firstName, lastName, ImageURLBase + photoName.get, photo.get, cache)
                 } else {
-                    User(userId, username, name, ImageURLBase + DefaultPhotoString, 0, cache)
+                    User(userId, username, firstName + " " + lastName, firstName, lastName, ImageURLBase + DefaultPhotoString, 0, cache)
                 }
         }
     }
@@ -100,6 +103,13 @@ object User {
     def getAll: Seq[User] = {
         DB.withConnection { implicit connection =>
             SQL("SELECT * FROM user").as(userParser *)
+        }
+    }
+
+    def setName(userId: Int, first: String, last: String): Unit = {
+        DB.withConnection { implicit conn =>
+            SQL("UPDATE user SET first_name = {first}, last_name = {last} WHERE user_id = {id}")
+                .on('id -> userId, 'first -> first, 'last -> last).executeUpdate()
         }
     }
 
@@ -174,8 +184,7 @@ object User {
         } else Some(parsed)
     }
 
-    def create(username: String, name: String, password: String, email: String, bio: Option[String] = None, pic: Option[Int] = None): Option[Long] = {
-
+    def create(username: String, firstName: String, lastName: String, password: String, email: String, bio: Option[String] = None, pic: Option[Int] = None): Option[Long] = {
         if (checkEmail(email)) {
             DB.withConnection { implicit connection =>
                 val picName: Option[String] = {
@@ -184,8 +193,9 @@ object User {
                     else
                         None
                 }
-                val user: Option[Long] = SQL("INSERT INTO user (username, name, photo, photo_name) VALUES ({username}, {name}, {pic}, {picName})").on('username -> username, 'name -> name,
-                        'pic -> pic, 'picName -> picName).executeInsert()
+                val user: Option[Long] = SQL("INSERT INTO user (username, first_name, last_name, photo, photo_name)" +
+                    " VALUES ({username}, {f_name}, {l_name}, {pic}, {picName})").on('username -> username, 'f_name -> firstName,
+                    'l_name -> lastName,'pic -> pic, 'picName -> picName).executeInsert()
                 UserInfo.create(user.get.toInt, password, email, bio)
                 user
             }
@@ -194,12 +204,28 @@ object User {
     }
 
     def register(name: String, password: String, email: String): Option[Long] = {
+        val nameSplit = name.split(" ", 2)
+        val firstName = nameSplit(0)
+        val lastName = if (nameSplit.length == 2) nameSplit(1) else ""
+        register(firstName, lastName, password, email)
+    }
+
+    def register(firstName: String, lastName: String, password: String, email: String): Option[Long] = {
         if (verifyEmail(email)) {
-            User.create(User.genUsername(email, backup = name.replace(" ", "")), name, password, email, None)
+            User.create(User.genUsername(email, backup = firstName + lastName), firstName, lastName, password, email, None)
         } else None
     }
 
-    def update(userId: Int, name: String, username: String, bio: String, pic: Int) = {
+    def update(userId: Int, name: String, username: String, bio: String, pic: Int): Int = {
+        val nameSplit = name.split(" ", 2)
+        val firstName = nameSplit(0)
+        val lastName = {
+            if (nameSplit.length == 2) nameSplit(1) else ""
+        }
+        update(userId, firstName, lastName, username, bio, pic)
+    }
+
+    def update(userId: Int, firstName: String, lastName: String, username: String, bio: String, pic: Int): Int = {
         DB.withConnection { implicit connection =>
             val media = Media.find(pic)
             val mediaName: Option[String] = {
@@ -209,8 +235,8 @@ object User {
                     None
                 }
             }
-            SQL("UPDATE user SET name = {name}, username = {username}, photo = {photo}, photo_name = {photoName} WHERE user_id = {user}")
-                .on('name -> name, 'photo -> pic, 'user -> userId, 'username -> username, 'photoName -> mediaName).executeUpdate()
+            SQL("UPDATE user SET first_name = {f_name}, last_name = {l_name}, username = {username}, photo = {photo}, photo_name = {photoName} WHERE user_id = {user}")
+                .on('f_name -> firstName, 'l_name -> lastName, 'photo -> pic, 'user -> userId, 'username -> username, 'photoName -> mediaName).executeUpdate()
             SQL("UPDATE user_info SET bio = {bio} WHERE user_id = {user}").on('bio -> bio, 'user -> userId).executeUpdate()
         }
     }
@@ -388,5 +414,4 @@ object User {
             newJson = newJson.as[JsObject] + ("self" -> Json.toJson(false))
         newJson
     }
-
 }
