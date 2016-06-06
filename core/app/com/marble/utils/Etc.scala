@@ -127,7 +127,8 @@ object Etc {
     }
 
     private def parseSpecial(raw: String): String = {
-        hashtagRegex.matcher(usernameRegex.matcher(raw).replaceAll("<a href=\"https://www.marble.co/user/$1\" target=\"_blank\">@$1</a>")).replaceAll("<a href=\"https://www.marble.co/$1\" target=\"_blank\">#$1</a>")
+        hashtagRegex.matcher(usernameRegex.matcher(raw).replaceAll("<a href=\"https://www.themarble.co/user/$1\" target=\"_blank\">@$1</a>"))
+            .replaceAll("<a href=\"https://www.themarble.co/$1\" target=\"_blank\">#$1</a>")
     }
 
     private def parseLinks(raw: String): String = {

@@ -14,8 +14,8 @@ import com.marble.core.web.controllers.MediaController._
 
 class PostController @Inject() (auth: Auth) extends Controller {
 
-    def viewPostPage(board_name: String, postId: Int) = auth.AuthAction { implicit user => implicit request =>
-        val board = Board.find(board_name)
+    def viewPostPage(boardName: String, postId: Int) = auth.AuthAction { implicit user => implicit request =>
+        val board = Board.find(boardName)
         val post = Post.find(postId)
         if (post.isDefined && board.isDefined && post.get.boardId == board.get.boardId.get) {
             Ok(core.view_post(user, post.get)())

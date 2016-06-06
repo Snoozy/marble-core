@@ -97,9 +97,9 @@ class PostController @Inject() (auth: Auth) extends Controller {
         val post = Post.find(post_id)
         if (post.isDefined) {
             if (post.get.repostId.isDefined) {
-                Ok(CommentTree.commentTreeToJson(CommentTree.getPostCommentsTop(post.get.repostId.get), user))
+                Ok(CommentTree.commentTreeJson(CommentTree.getPostCommentsTop(post.get.repostId.get), user))
             } else {
-                Ok(CommentTree.commentTreeToJson(CommentTree.getPostCommentsTop(post.get.postId.get), user))
+                Ok(CommentTree.commentTreeJson(CommentTree.getPostCommentsTop(post.get.postId.get), user))
             }
         } else {
             BadRequest(Json.obj("error" -> "Post does not exist."))

@@ -18,7 +18,7 @@ class CommentController @Inject() (auth: Auth) extends Controller {
         if (comment.isDefined && board.isDefined) {
             val post = Post.find(comment.get.postId)
             if (post.isDefined) {
-                Ok(core.view_post(user, post.get, singleComment = comment)())
+                Ok(core.view_post(user, post.get, singleComment = if (comment.get.root) comment else Comment.find(comment.get.parentId.get))())
             } else {
                 NotFound("Comment not found.")
             }
@@ -43,8 +43,8 @@ class CommentController @Inject() (auth: Auth) extends Controller {
                             val commentId = Comment.create(post.get.repostId.getOrElse(postId), user.get.userId.get, data.get, parentId, media = Some(mediaIds))
                             if (commentId.isDefined) {
                                 val board = Board.find(post.get.boardId)
-                                val ctn = CommentTreeNode(Comment.find(commentId.get.toInt).get, Seq())
-                                Ok(Json.obj("status" -> "success", "item_html" -> compressHtml(components.comment(ctn, user, board.get, post.get.userId)(expanded = false, root = parentId.isEmpty).toString())))
+                                val comment = Comment.find(commentId.get.toInt).get
+                                Ok(Json.obj("status" -> "success", "item_html" -> compressHtml(components.comment(comment, user, board.get, post.get.userId, Seq())(expanded = false, root = parentId.isEmpty).toString())))
                             } else {
                                 BadRequest(Json.obj("error" -> "Request invalid."))
                             }

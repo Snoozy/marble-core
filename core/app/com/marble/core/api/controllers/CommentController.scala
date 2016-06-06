@@ -43,8 +43,8 @@ class CommentController @Inject() (auth: Auth) extends Controller {
     def describe(id: Int) = auth.ApiAuthAction { implicit user => implicit request =>
         val comment = Comment.find(id, status = None)
         if (comment.isDefined) {
-            val tree = CommentTree.getCommentTree(comment.get)
-            Ok(Json.obj("comment_tree" -> CommentTree.commentTreeToJson(tree)))
+            val tree = CommentTree.getCommentTreeThread(comment.get)
+            Ok(Json.obj("comment_tree" -> CommentTree.commentTreeJson(tree, user)))
         } else {
             BadRequest(Json.obj("error" -> "Entity does not exist."))
         }

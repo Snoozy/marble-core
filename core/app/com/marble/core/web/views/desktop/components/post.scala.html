@@ -229,7 +229,7 @@
 
                         <div class="displaynone comment-start-marker"></div>
                         @for(comment <- comments.take(3)) {
-                            @components.comment(CommentTreeNode(comment, Seq()), user, board, poster.userId.get)(expanded = expanded, root = true, timestamp = timestamp)
+                            @components.comment(comment, user, board, poster.userId.get, Seq())(expanded = expanded, root = true, timestamp = timestamp)
                             @defining(CommentTree.getCommentNumChildren(comment.commentId.get)) { n =>
                                 @if(n > 0) {
                                     <div class="view-replies-wrapper">
@@ -249,7 +249,7 @@
                 } else {
                     @if(singleComment.isEmpty) {
                         @defining(CommentTree.getPostCommentsTop(post)) { comments =>
-                            @if(comments.rootComments.nonEmpty) {
+                            @if(comments.roots.nonEmpty) {
                                 <hr class="hr-no-margin comment-hr">
                             }
                             <div class="comments-container">
@@ -272,14 +272,14 @@
                                     </div>
                                 }
                                 <div class="displaynone comment-start-marker"></div>
-                                @for(comment <- comments.rootComments) {
-                                    @components.comment(comment, user, board, poster.userId.get)(expanded = expanded, root = true, timestamp = timestamp)
+                                @for(comment <- comments.roots) {
+                                    @components.comment(comment.root, user, board, poster.userId.get, comment.children)(expanded = expanded, root = true, timestamp = timestamp)
                                 }
                             </div>
                         }
                     } else {
-                        @defining(CommentTree.getCommentTree(singleComment.get)) { comment =>
-                            @if(comment.rootComments.nonEmpty) {
+                        @defining(CommentTree.getCommentTreeThread(singleComment.get)) { comment =>
+                            @if(comment.roots.nonEmpty) {
                                 <hr class="hr-no-margin comment-hr">
                             }
                             <div class="comments-container">
@@ -309,8 +309,8 @@
                                     </a>
                                 </div>
                                 <div class="displaynone comment-start-marker"></div>
-                                @for(comment <- comment.rootComments) {
-                                    @components.comment(comment, user, board, poster.userId.get)(expanded = expanded, root = true, timestamp = timestamp)
+                                @for(comment <- comment.roots) {
+                                    @components.comment(comment.root, user, board, poster.userId.get, comment.children)(expanded = expanded, root = true, timestamp = timestamp)
                                 }
                             </div>
 

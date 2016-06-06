@@ -12,7 +12,7 @@ filename=${fullfile%????}
 
 echo "Package is located at ${package_path}"
 
-server_ips="54.152.66.222"
+server_ips="52.90.135.235"
 
 echo 'Starting deployment...'
 

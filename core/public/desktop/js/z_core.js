@@ -598,7 +598,9 @@ $(document).ready(function() {
         reply_form.attr('data-reply-id', $(this).closest('.root-comment').children('.comment').data('comment-id'));
         reply_form.find('.comment-val').attr('placeholder', 'Reply to comment...');
         if (!root) {
+            var username = $(this).closest('.comment-container').data('commenter-username');
             reply_form.addClass('child-reply');
+            reply_form.find('.comment-val').val("@" + username + " ");
         }
         var $comment_cont = $(this).closest('.comment-actions').siblings('.comment-children-container');
         if ($comment_cont.children('.comment-form').length == 0) {
@@ -870,6 +872,7 @@ $(document).ready(function() {
                 }
             });
         }
+        $(".chosen-select").val('').trigger("chosen:updated");
         return false;
     });
 

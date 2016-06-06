@@ -222,6 +222,13 @@ object Board {
         }
     }
 
+    def getFrontPosts(boardId: Int, limit: Int = 10): Seq[Post] = {
+        DB.withConnection { implicit conn =>
+            SQL("SELECT * FROM post WHERE board_id = {board_id} ORDER BY time DESC LIMIT {limit}")
+                .on('board_id -> boardId, 'limit -> limit).as(postParser *)
+        }
+    }
+
     def toJsonSeq(boards: Seq[Board], following: Option[Boolean] = None, user: Option[User] = None): JsValue = {
         var json = Json.arr()
         boards.reverse.foreach { board =>

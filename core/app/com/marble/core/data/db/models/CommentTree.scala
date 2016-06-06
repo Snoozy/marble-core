@@ -3,20 +3,19 @@ package com.marble.core.data.db.models
 import anorm.SqlParser._
 import anorm._
 import com.marble.core.data.db.models.Comment.commentParser
-import com.marble.utils.EncodeDecode
 import play.api.Play.current
 import play.api.db._
 import play.api.libs.json.{JsValue, _}
 
-case class CommentTree(rootComments: Seq[CommentTreeNode], postId: Int)
+case class CommentTree(roots: Seq[CommentTreeThread], postId: Int)
 
-case class CommentTreeNode(comment: Comment, children: Seq[CommentTreeNode])
+case class CommentTreeThread(root: Comment, children: Seq[Comment])
 
 object CommentTree {
 
     def getPostCommentsTop(postId: Int): CommentTree = {
         DB.withConnection { implicit connection =>
-            val comments = SQL("SELECT * FROM comment WHERE post_id = {id}").on('id -> postId).as(commentParser *)
+            val comments = SQL("SELECT * FROM comment WHERE post_id = {id} AND status = 0").on('id -> postId).as(commentParser *)
             commentsByTop(comments)
         }
     }
@@ -29,22 +28,20 @@ object CommentTree {
         }
     }
 
-    def getCommentTree(comment: Comment): CommentTree = {
-        DB.withConnection { implicit connection =>
-            val path = comment.path + "/" + EncodeDecode.encodeNum(comment.commentId.get) + "%"
-            val comments = SQL("SELECT * FROM comment WHERE path LIKE {path}").on('path -> path).as(commentParser *)
-            CommentTree(sortTopRecurse(comments, Seq(comment)), comment.postId)
+    def getCommentTreeThread(comment: Comment): CommentTree = {
+        if (comment.root) {
+            DB.withConnection { implicit connection =>
+                val comments = SQL("SELECT * FROM comment WHERE parent_id = {parent} AND status = 0").on('parent -> comment.commentId.get).as(commentParser *)
+                CommentTree(Seq(CommentTreeThread(comment, comments)), comment.postId)
+            }
+        } else {
+            CommentTree(Seq(), comment.postId)
         }
-    }
-
-    def commentTreeToJson(tree: CommentTree, user: Option[User] = None): JsValue = {
-        val blockedUserIds = if (user.isDefined) UserBlock.getBlockedUserIds(user.get.userId.get) else Seq()
-        Json.obj("post_id" -> tree.postId, "comments" -> commentTreeJsonRecurse(tree.rootComments, user, blockedUserIds))
     }
 
     def getTopRootComments(postId: Int): Seq[Comment] = {
         DB.withConnection { implicit connection =>
-            SQL("SELECT * FROM comment WHERE post_id = {id} AND path = \"\" AND status = 0 ORDER BY votes desc").on('id -> postId).as(commentParser *)
+            sortTop(SQL("SELECT * FROM comment WHERE post_id = {id} AND parent_id is NULL AND status = 0 ORDER BY votes desc").on('id -> postId).as(commentParser *))
         }
     }
 
@@ -53,51 +50,54 @@ object CommentTree {
     }
 
     def getCommentNumChildren(commentId: Int): Int = {
-        DB.withConnection { implicit connection =>
-            val comment = Comment.find(commentId, status = None)
-            if (comment.isDefined) {
-                val path = comment.get.path + "/" + EncodeDecode.encodeNum(comment.get.commentId.get)
-                SQL("SELECT COUNT(*) FROM comment WHERE path = {path}").on('path -> path).as(scalar[Long].single).toInt
-            } else
-                0
-        }
+        val comment = Comment.find(commentId, status = None)
+        if (comment.isDefined && comment.get.root) {
+            DB.withConnection { implicit connection =>
+                SQL("SELECT COUNT(*) FROM comment WHERE parent_id = {parent}").on('parent -> comment.get.commentId.get).as(scalar[Long].single).toInt
+            }
+        } else 0
+    }
+
+    private def sortTop(comments: Seq[Comment]): Seq[Comment] = {
+        val ret = comments.sortBy(- _.votes)
+        ret
     }
 
     private def commentsByTop(comments: Seq[Comment]): CommentTree = {
         if (comments.isEmpty) {
             CommentTree(Seq(), 0)
         } else {
-            val rootComments = comments.par.filter(_.path == "").toList
-            CommentTree(sortTopRecurse(comments, rootComments), comments.head.postId)
+            val filtered = comments.par.filter(_.root)
+            val rootComments = sortTop(comments.par.filter(_.root).toVector)
+            val roots = rootComments.map { root =>
+                val children = sortTop(comments.par.filter((c: Comment) => c.parentId.isDefined && c.parentId.get == root.commentId.get).toVector)
+                CommentTreeThread(root, children)
+            }
+            CommentTree(roots, comments.head.postId)
         }
     }
 
-    private def sortTopRecurse(comments: Seq[Comment], currentLevel: Seq[Comment]): Seq[CommentTreeNode] = {
-        if (currentLevel.isEmpty)
-            List()
-        else {
-            currentLevel.sortBy(- _.votes).par.map { currentComment =>
-                CommentTreeNode(currentComment, sortTopRecurse(comments, getChildren(currentComment, comments)))
-            }.toList
-        }
-    }
-
-    private def getChildren(comment: Comment, comments: Seq[Comment]): Seq[Comment] = {
-        comments.par.filter { currentComment =>
-            currentComment.path.equals(comment.path + "/" + EncodeDecode.encodeNum(comment.commentId.get))
-        }.toList
-    }
-
-    private def commentTreeJsonRecurse(nodes: Seq[CommentTreeNode], user: Option[User], blockedUserIds: Seq[Int]): JsValue = {
+    def commentTreeJson(tree: CommentTree, user: Option[User], blockedUserIds: Option[Seq[Int]] = None): JsValue = {
         var json = Json.arr()
-        nodes.reverse.foreach { node =>
-            val comment = node.comment
-            var newComment: JsValue = Comment.toJson(comment, user = user).as[JsObject] + ("children" -> commentTreeJsonRecurse(node.children, user, blockedUserIds))
+        val blocked: Seq[Int] = {
+            if (blockedUserIds.isEmpty && user.isDefined) {
+                UserBlock.getBlockedUserIds(user.get.userId.get)
+            } else {
+                Seq()
+            }
+        }
+        tree.roots.reverse.foreach { node =>
+            val comment = node.root
+            val children = Json.arr()
+            node.children.foreach { child =>
+                json = json.+:(Comment.toJson(child, user = user))
+            }
+            var newComment: JsValue = Comment.toJson(comment, user = user).as[JsObject] + ("children" -> children)
             if (user.isDefined)
                 newComment = newComment.as[JsObject] + ("vote_value" -> Json.toJson(CommentVote.getCommentVoteValue(user.get.userId.get, comment.commentId.get)))
             else
                 newComment = newComment.as[JsObject] + ("vote_value" -> Json.toJson(0))
-            if (blockedUserIds.contains(comment.userId)) {
+            if (blocked.nonEmpty && blocked.contains(comment.userId)) {
                 newComment = newComment.as[JsObject] + ("blocked" -> Json.toJson(1))
             }
             json = json.+:(newComment) // Adds it to json array

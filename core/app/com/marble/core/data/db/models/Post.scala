@@ -212,7 +212,7 @@ object Post {
         Random.shuffle(Constants.FrontBoards.flatMap { b =>
             val board = Board.find(b)
             if (board.isDefined) {
-                Board.getTopPosts(board.get.boardId.get)
+                Board.getFrontPosts(board.get.boardId.get)
             } else {
                 Seq()
             }

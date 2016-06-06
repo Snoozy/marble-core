@@ -7,6 +7,7 @@ import com.marble.utils.EncodeDecode
 import play.api.Play.current
 import com.marble.core.api.apple.PNController
 import com.marble.core.config.MarbleConfig
+import play.api.Logger
 import play.api.db._
 import play.api.libs.json.{JsObject, JsValue, Json}
 
@@ -14,13 +15,15 @@ case class Comment (
     commentId: Option[Int],
     postId: Int,
     userId: Int,
+    parentId: Option[Int],
     data: String,
     time: Long,
-    path: String,
     votes: Int,
     status: Int,
     media: Seq[Int]
-)
+) {
+    lazy val root: Boolean = parentId.isEmpty
+}
 
 object Comment {
 
@@ -28,17 +31,30 @@ object Comment {
         get[Option[Int]]("comment_id") ~
             get[Int]("post_id") ~
             get[Int]("user_id") ~
+            get[Option[Int]]("parent_id") ~
             get[String]("data") ~
             get[Long]("time") ~
-            get[String]("path") ~
             get[Int]("votes") ~
             get[Int]("status") ~
             get[String]("media") map {
-            case commentId ~ postId ~ userId ~ data ~ time ~ path ~ votes ~ status ~ media =>
+            case commentId ~ postId ~ userId ~ parentId ~ data ~ time ~ votes ~ status ~ media =>
                 val media_ids = media.split("~").filter(_ != "").map(_.toInt)
-                Comment(commentId, postId, userId ,data, time, path, votes, status, media_ids)
+                Comment(commentId, postId, userId, parentId, data, time, votes, status, media_ids)
         }
     }
+
+//    def parseCommentParents(): Unit = {
+//        DB.withConnection { implicit conn =>
+//            val comments = SQL("SELECT * FROM comment").as(commentParser *)
+//            comments.foreach { comment =>
+//                val path = comment.path.split("/")
+//                if (path.length > 1) {
+//                    val parent = path(1)
+//                    SQL("UPDATE comment SET parent_id = {parent} WHERE comment_id = {id}").on('parent -> EncodeDecode.decodeNum(parent), 'id -> comment.commentId.get).executeUpdate()
+//                }
+//            }
+//        }
+//    }
 
     def find(id: Int, status: Option[Int] = Some(0)): Option[Comment] = {
         DB.withConnection { implicit connection =>
@@ -66,8 +82,8 @@ object Comment {
     def userHasCommented(userId: Int, commentId: Int): Boolean = {
         DB.withConnection { implicit connection =>
             val comment = Comment.find(commentId, status = None)
-            val path = comment + "/" + EncodeDecode.encodeNum(commentId)
-            val exists = SQL("SELECT comment_id FROM comment WHERE path = {path} AND user_id = {user_id} LIMIT 2").on('path -> (path + "%"), 'user_id -> userId).as(scalar[Int] *)
+            val exists = SQL("SELECT comment_id FROM comment WHERE parent_id = {parent} AND user_id = {user_id} LIMIT 2")
+                .on('parent -> comment.get.commentId.get, 'user_id -> userId).as(scalar[Int] *)
             exists.length > 1
         }
     }
@@ -81,50 +97,56 @@ object Comment {
     def mostRecentReplier(commentId: Int): Option[Int] = {
         DB.withConnection { implicit connection =>
             val comment = Comment.find(commentId)
-            val path = comment.get.path + "/" + EncodeDecode.encodeNum(commentId)
-            SQL("SELECT user_id FROM comment WHERE path = {path} ORDER BY time DESC LIMIT 1").on('path -> path).as(scalar[Int].singleOpt)
+            SQL("SELECT user_id FROM comment WHERE parent_id = {parent} ORDER BY time DESC LIMIT 1").on('parent -> comment.get.parentId.get).as(scalar[Int].singleOpt)
         }
     }
 
     def create(postId: Int, userId: Int, data: String, parentId: Option[Int], media: Option[Seq[Int]] = None, notif: Boolean = true): Option[Long] = {
-        val path = parentId match {
-            case None => ""
-            case Some(_) =>
-                val parent = Comment.find(parentId.get, status = None).getOrElse(return None)
-                parent.path.substring(0, parent.path.indexOf('/')) + "/" + EncodeDecode.encodeNum(parent.commentId.get)
-        }
+        val parent: Option[Comment] = if (parentId.isDefined) Comment.find(parentId.get) else None
 
-        if (notif) {
-            val post = Post.find(postId)
-            if (post.isDefined) {
-                val board = Board.find(post.get.boardId)
-                PNController.sendNotification(MarbleConfig.SuperUser, "New comment on " + board.get.name)
-            }
-        }
-
-        val mediaString = {
-            if (media.isDefined && media.get.nonEmpty) {
-                media.get.mkString("~")
-            } else {
-                ""
-            }
-        }
-
-        val time = System.currentTimeMillis()
-
-        DB.withConnection { implicit connection =>
-            val ret: Option[Long] = SQL("INSERT INTO comment (post_id, user_id, data, path, time, votes, media) VALUES ({post_id}, {user_id}, {data}," +
-                "{path}, {time}, 0, {media})").on('post_id -> postId, 'user_id -> userId, 'path -> path, 'data -> data, 'time -> time, 'media -> mediaString).executeInsert()
-            if (ret.isDefined) {
-                SQL("UPDATE post SET comment_count = comment_count + 1 WHERE post_id = {post_id}")
-                    .on('post_id -> postId).executeUpdate()
-                Notification.addListener(ret.get.toInt, EntityType.Comment, userId)
-                Notification.create(postId, EntityType.Post, ActionType.Reply, userId)
-                if (parentId.isDefined) {
-                    Notification.create(parentId.get, EntityType.Comment, ActionType.Reply, userId)
+        if (parent.isDefined && !parent.get.root) {
+            // recurse if parent is not a root node
+            create(postId, userId, data, parent.get.parentId, media, notif)
+        } else {
+            if (notif) {
+                val post = Post.find(postId)
+                if (post.isDefined) {
+                    val board = Board.find(post.get.boardId)
+                    PNController.sendNotification(MarbleConfig.SuperUser, "New comment on " + board.get.name)
                 }
             }
-            ret
+
+            val mediaString = {
+                if (media.isDefined && media.get.nonEmpty) {
+                    media.get.mkString("~")
+                } else {
+                    ""
+                }
+            }
+
+            val time = System.currentTimeMillis()
+
+            DB.withConnection { implicit connection =>
+                val ret: Option[Long] = {
+                    if (parent.isEmpty) {
+                        SQL("INSERT INTO comment (post_id, user_id, data, time, votes, media) VALUES ({post_id}, {user_id}, {data}," +
+                            "{time}, 0, {media})").on('post_id -> postId, 'user_id -> userId, 'data -> data, 'time -> time, 'media -> mediaString).executeInsert()
+                    } else {
+                        SQL("INSERT INTO comment (post_id, user_id, parent_id, data, time, votes, media) VALUES ({post_id}, {user_id}, {parent}, {data}," +
+                            "{time}, 0, {media})").on('post_id -> postId, 'user_id -> userId, 'parent -> parentId.get, 'data -> data, 'time -> time, 'media -> mediaString).executeInsert()
+                    }
+                }
+                if (ret.isDefined) {
+                    SQL("UPDATE post SET comment_count = comment_count + 1 WHERE post_id = {post_id}")
+                        .on('post_id -> postId).executeUpdate()
+                    Notification.addListener(ret.get.toInt, EntityType.Comment, userId)
+                    Notification.create(postId, EntityType.Post, ActionType.Reply, userId)
+                    if (parentId.isDefined) {
+                        Notification.create(parentId.get, EntityType.Comment, ActionType.Reply, userId)
+                    }
+                }
+                ret
+            }
         }
     }
 
