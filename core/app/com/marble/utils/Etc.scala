@@ -210,9 +210,8 @@ object Etc {
 
             // used for truncated urls that are too long visually
             val pretty = truncateUrl(raw)
-            println(pretty)
 
-            "<a href=\"" + parsed + "\" target=\"_blank\">" + pretty + "</a>"
+            "<a href=\"" + parsed + "\" target=\"_blank\" title=\"" + parsed + "\">" + pretty + "</a>"
         }
     }
 
@@ -220,39 +219,7 @@ object Etc {
         if (raw.length < Constants.MaxLinkLength) {
             raw
         } else {
-            // no http:// in url
-            val normal = {
-                if (raw.contains("http")) {
-                    raw.substring(raw.indexOf("//") + 2)
-                } else {
-                    raw
-                }
-            }
-            val urlPartitions = normal.split("/")
-
-            // create running total of number of letters in each partition
-            val urlLen = (x: Int, y: String) => {
-                x + y.length
-            }
-            val urlScan = urlPartitions.init.scanLeft(0)(urlLen)
-            val truncatedScan = urlScan.takeWhile(_ < Constants.MaxLinkLength - 5)
-            val lastUrlPart = {
-                val total = truncatedScan.lastOption.getOrElse(0) + urlPartitions.last.length
-                if (total < Constants.MaxLinkLength) {
-                    urlPartitions.last
-                } else {
-                    urlPartitions.last.substring(0, Constants.MaxLinkLength - truncatedScan.lastOption.getOrElse(0)) + "…"
-                }
-            }
-            if (truncatedScan.length - 1 < urlPartitions.length) {
-                if (truncatedScan.length == urlPartitions.length) {
-                    urlPartitions.init.mkString("/") + "/" + lastUrlPart
-                } else {
-                    urlPartitions.take(truncatedScan.length).mkString("/") + "/…/" + lastUrlPart
-                }
-            } else {
-                urlPartitions.head + "/" + lastUrlPart
-            }
+            raw.substring(0, Constants.MaxLinkLength) + "…"
         }
     }
 
