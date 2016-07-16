@@ -691,7 +691,7 @@ $(document).ready(function() {
         };
 
         reader.readAsDataURL(file);
-    };
+    }
 
     $(document).on('click', '.remove-post-image', function() {
         var upload_id = $(this).closest('.preview').data('upload-id');

@@ -5,8 +5,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 
 object MailTemplates {
 
-    def sendWelcomeEmail(name: String, email: String) = {
-        val firstName = Etc.parseFirstName(name)
+    def sendWelcomeEmail(firstName: String, email: String) = {
         val sendEmail = Email(
             subject = "Welcome to Marble!",
             from = EmailAddress("Marble", "info@themarble.co"),

@@ -27,7 +27,8 @@
                         }
                     });
                 }
-                if (submit_form && !$.trim($('.input-email').val()).length && !$.trim($('.input-name').val()).length && !$.trim($('.input-password').val()).length) {
+                if (submit_form && !$.trim($('.input-email').val()).length && !$.trim($('.first-name').val()).length
+                        && !$.trim($('.last-name').val()).length && !$.trim($('.input-password').val()).length) {
                     submit_form = true;
                 }
                 if (!submit_form) {
@@ -36,10 +37,15 @@
                         $('.email-form').tooltip({'title': 'Email required.', 'placement': 'right', 'trigger': 'manual'});
                         $('.email-form').tooltip('show');
                     }
-                    if (!$.trim($('.input-name').val()).length) {
-                        $('.name-form').addClass('has-error');
-                        $('.name-form').tooltip({'title': 'Name required.', 'placement': 'right', 'trigger': 'manual'});
-                        $('.name-form').tooltip('show');
+                    if (!$.trim($('.first-name').val()).length) {
+                        $('.first-name-form').addClass('has-error');
+                        $('.first-name-form').tooltip({'title': 'First name required.', 'placement': 'left', 'trigger': 'manual'});
+                        $('.first-name-form').tooltip('show');
+                    }
+                    if (!$.trim($('.last-name').val()).length) {
+                        $('.last-name-form').addClass('has-error');
+                        $('.last-name-form').tooltip({'title': 'Last name required.', 'placement': 'right', 'trigger': 'manual'});
+                        $('.last-name-form').tooltip('show');
                     }
                     if (!$.trim($('.input-password').val()).length) {
                         $('.password-form').addClass('has-error');
@@ -109,7 +115,7 @@
     <body class="main-background">
         @com.marble.core.web.views.html.desktop.components.welcome_masthead()
         <div class="page-container">
-            <div class="register-container">
+            <div class="register-container" style="width:420px;">
                 <div class="register-inner">
                     <div class="register-header">
                         <span class="register-text">
@@ -134,8 +140,11 @@
                         </p>
                     </div>
                     <form role="form" method="post" action="/signup" class="welcome_signup" style="text-align: center;">
-                        <div class="form-group name-form">
-                            <input type="text" class="form-control input-name" name="name" placeholder="Full Name">
+                        <div class="form-group first-name-form">
+                            <input type="text" class="form-control input-name first-name" name="first_name" style="margin-right:11px;" placeholder="First Name">
+                        </div>
+                        <div class="form-group last-name-form">
+                            <input type="text" class="form-control input-name last-name" name="last_name" placeholder="Last Name">
                         </div>
                         <div class="form-group email-form">
                             <input type="email" class="form-control input-email" name="email" placeholder="Email">
@@ -143,7 +152,7 @@
                         <div class="form-group password-form">
                             <input type="password" class="form-control input-password" name="password" placeholder="Password">
                         </div>
-                        <button type="submit" class="btn btn-primary signup-submit" name="submit" style="float:none;width:297px;margin-top:5px;">Sign Up for Marble</button>
+                        <button type="submit" class="btn btn-primary signup-submit" name="submit" style="float:none;width:210px;height:44px;margin-top:5px;">Sign Up for Marble</button>
                     </form>
                     <div class="welcome-legal" style="margin-top:-22px;margin-bottom:10px;padding: 0 20px;text-align:center;font-size:11px;text-shadow:0 1px rgba(0,0,0,0.18);color:#aaa;">
                         Creating an account means you agree to Marble's <a href="/legal/tos.html" target="_blank">Terms of Service</a> and <a href="/legal/privacy.html" target="_blank">Privacy Policy</a>.

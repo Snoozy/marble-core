@@ -12,6 +12,8 @@ object Constants {
     val BannedBoards = List("admin", "settings", "support", "boards", "logout", "login", "user", "signup", "search", "gettingstarted", "connect", "debug", "a", "legal")
     val HashSalt = "K06mylBiXH"
 
+    val MaxLinkLength = 30
+
     val GettingStartedBoards = {
         if (Play.isDev) {
             Map[String, Seq[Int]]("adsf" -> Seq(1, 2, 1, 2, 1), "qwerty" -> Seq(1, 1, 1, 1, 1, 1, 1), "zxcv" -> Seq(1, 1, 1, 1, 1, 1))

@@ -3721,3 +3721,12 @@ div.play-button {
     padding-left: 0;
     border: none;
 }
+
+.input-name {
+    width: 163px;
+    display: inline-block;
+}
+
+.first-name-form, .last-name-form {
+    display: inline-block;
+}

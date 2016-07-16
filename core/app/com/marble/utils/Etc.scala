@@ -4,9 +4,10 @@ import java.util.regex.{Matcher, Pattern}
 
 import org.apache.commons.lang3.StringEscapeUtils.escapeHtml4
 import com.googlecode.htmlcompressor.compressor.HtmlCompressor
+import com.marble.core.data.Constants
+
 import collection.JavaConversions._
 import scala.collection.JavaConversions.mapAsScalaMap
-
 import scala.util.matching.Regex
 
 object Etc {
@@ -139,7 +140,7 @@ object Etc {
         val raw = m.group(0)
         if (ytCheckRegex.matcher(raw).find()) {
             val ytMatcher = youtubeIdRegex.matcher(raw)
-            if (ytMatcher.find()) {
+            if (ytMatcher.find()) {  // link is a YT link
                 val ytId = ytMatcher.group(1)
                 val time = {
                     try {
@@ -192,7 +193,10 @@ object Etc {
                         raw
                     }
                 }
-                "<a href=\"" + parsed + "\" target=\"_blank\">" + raw + "</a>"
+
+                // used for truncated urls that are too long visually
+                val pretty = truncateUrl(raw)
+                "<a href=\"" + parsed + "\" target=\"_blank\">" + pretty + "</a>"
 
             }
         } else {
@@ -203,7 +207,52 @@ object Etc {
                     raw
                 }
             }
-            "<a href=\"" + parsed + "\" target=\"_blank\">" + raw + "</a>"
+
+            // used for truncated urls that are too long visually
+            val pretty = truncateUrl(raw)
+            println(pretty)
+
+            "<a href=\"" + parsed + "\" target=\"_blank\">" + pretty + "</a>"
+        }
+    }
+
+    def truncateUrl(raw: String): String = {
+        if (raw.length < Constants.MaxLinkLength) {
+            raw
+        } else {
+            // no http:// in url
+            val normal = {
+                if (raw.contains("http")) {
+                    raw.substring(raw.indexOf("//") + 2)
+                } else {
+                    raw
+                }
+            }
+            val urlPartitions = normal.split("/")
+
+            // create running total of number of letters in each partition
+            val urlLen = (x: Int, y: String) => {
+                x + y.length
+            }
+            val urlScan = urlPartitions.init.scanLeft(0)(urlLen)
+            val truncatedScan = urlScan.takeWhile(_ < Constants.MaxLinkLength - 5)
+            val lastUrlPart = {
+                val total = truncatedScan.lastOption.getOrElse(0) + urlPartitions.last.length
+                if (total < Constants.MaxLinkLength) {
+                    urlPartitions.last
+                } else {
+                    urlPartitions.last.substring(0, Constants.MaxLinkLength - truncatedScan.lastOption.getOrElse(0)) + "…"
+                }
+            }
+            if (truncatedScan.length - 1 < urlPartitions.length) {
+                if (truncatedScan.length == urlPartitions.length) {
+                    urlPartitions.init.mkString("/") + "/" + lastUrlPart
+                } else {
+                    urlPartitions.take(truncatedScan.length).mkString("/") + "/…/" + lastUrlPart
+                }
+            } else {
+                urlPartitions.head + "/" + lastUrlPart
+            }
         }
     }
 

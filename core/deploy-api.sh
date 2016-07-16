@@ -30,7 +30,7 @@ if [ -e "$package_path" ]; then
             chmod 755 ./marble-api/bin/marble
             rm marble-api.zip
             sudo kill \$(head -n 1 /home/ubuntu/marble-api-backup/RUNNING_PID)
-            sudo ./marble-api/bin/marble -J-Xms128M -J-Xmx750M -J-server -Dconfig.file=/home/ubuntu/prod_api.conf -Dhttp.port=80 &
+            sudo ./marble-api/bin/marble -J-Xms128M -J-Xmx500M -J-server -Dconfig.file=/home/ubuntu/prod_api.conf -Dhttp.port=80 &
             disown
         '"
     done

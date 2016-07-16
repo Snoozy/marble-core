@@ -1,5 +1,5 @@
 <div class="modal fade in" id="signup-modal" tabindex="-1" role="dialog" aria-labelledby="signup-modal" aria-hidden="true">
-    <div class="modal-dialog" style="width:350px;margin-top:43px;">
+    <div class="modal-dialog" style="width:380px;margin-top:43px;">
         <div class="modal-content">
             <div class="modal-header" style="padding: 10px 15px;">
                 <div class="signup-modal-logo">
@@ -26,10 +26,19 @@
                     </p>
                 </div>
                 <form action="/signup" method="POST" class="user-login-form" style="padding:10px 0 0; border:none;margin-bottom:13px;">
-                    <input class="form-control" type="text" name="name" value="" placeholder="Full Name" style="margin-bottom:8px;height:40px;">
-                    <input class="form-control" type="email" name="email" value="" placeholder="Email" style="height:40px;">
-                    <input class="form-control" type="password" name="password" style="margin-top: 8px;height:40px;" value="" placeholder="Password">
-                    <p><input class="btn btn-primary" type="submit" name="submit" value="Sign Up for Marble" style="font-weight:bold;font-size:18px;width:100%;margin-bottom:-40px;"></p>
+                    <div class="form-group first-name-form">
+                        <input class="form-control" type="text" name="first_name" value="" placeholder="First Name" style="margin-bottom:8px;height:40px;width: 164px;display:inline-block;margin-right:10px;">
+                    </div>
+                    <div class="form-group last-name-form">
+                        <input class="form-control" type="text" name="last_name" value="" placeholder="Last Name" style="margin-bottom:8px;height:40px;width:164px;display:inline-block;">
+                    </div>
+                    <div class="form-group email-form">
+                        <input class="form-control input-email" type="email" name="email" value="" placeholder="Email" style="height:40px;">
+                    </div>
+                    <div class="form-group password-form">
+                        <input class="form-control input-password" type="password" name="password" style="margin-top: 8px;height:40px;" value="" placeholder="Password">
+                    </div>
+                    <p><input class="btn btn-primary modal-signup" type="submit" name="submit" value="Sign Up for Marble" style="font-weight:bold;font-size:18px;width:100%;margin-bottom:-40px;"></p>
                     <br/>
                 </form>
                 <div class="separator"></div>
@@ -61,6 +70,62 @@
     }(document, 'script', 'facebook-jssdk'));
 
     $(function() {
+
+        $('.user-login-form').submit(function() {
+            var email = $('.input-email').val();
+            var submit_form = false;
+            if ($.trim(email).length) {
+                $.ajax({
+                    url: '/a/check_email?email=' + email,
+                    dataType: 'json',
+                    async: false,
+                    success: function() {
+                        submit_form = true;
+                    },
+                    error: function() {
+                        $('.email-form').addClass('has-error');
+                        $('.email-form').tooltip({'title': 'Email already in use.', 'placement': 'right', 'trigger': 'manual'});
+                        $('.email-form').tooltip('show');
+                        submit_form = false;
+                    }
+                });
+            }
+            if (submit_form && !$.trim($('.input-email').val()).length && !$.trim($('.first-name').val()).length
+                    && !$.trim($('.last-name').val()).length && !$.trim($('.input-password').val()).length) {
+                submit_form = true;
+            }
+            if (!submit_form) {
+                if (!$.trim($('.input-email').val()).length) {
+                    $('.email-form').addClass('has-error');
+                    $('.email-form').tooltip({'title': 'Email required.', 'placement': 'right', 'trigger': 'manual'});
+                    $('.email-form').tooltip('show');
+                }
+                if (!$.trim($('.first-name').val()).length) {
+                    $('.first-name-form').addClass('has-error');
+                    $('.first-name-form').tooltip({'title': 'First name required.', 'placement': 'left', 'trigger': 'manual'});
+                    $('.first-name-form').tooltip('show');
+                }
+                if (!$.trim($('.last-name').val()).length) {
+                    $('.last-name-form').addClass('has-error');
+                    $('.last-name-form').tooltip({'title': 'Last name required.', 'placement': 'right', 'trigger': 'manual'});
+                    $('.last-name-form').tooltip('show');
+                }
+                if (!$.trim($('.input-password').val()).length) {
+                    $('.password-form').addClass('has-error');
+                    $('.password-form').tooltip({'title': 'Password required.', 'placement': 'right', 'trigger': 'manual'});
+                    $('.password-form').tooltip('show');
+                }
+            }
+            return submit_form;
+        });
+
+        $('.form-control').keydown(function() {
+            $(this).parent().removeClass('has-error');
+            $(this).parent().tooltip('destroy');
+        });
+
+
+
         var rerequest_email = false;
         $('.fb-signup-button').click(function(e) {
             e.preventDefault();

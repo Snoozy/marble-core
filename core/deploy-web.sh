@@ -46,7 +46,7 @@ if [ -e "$package_path" ]; then
             chmod 755 ./marble-web/bin/marble
             rm marble-web.zip
             kill \$(head -n 1 /home/ubuntu/marble-web-backup/RUNNING_PID)
-            ./marble-web/bin/marble -J-Xms128M -J-Xmx750M -J-server -Dconfig.file=/home/ubuntu/prod_web.conf &
+            ./marble-web/bin/marble -J-Xms128M -J-Xmx900M -J-server -Dconfig.file=/home/ubuntu/prod_web.conf &
             disown
         '"
     done

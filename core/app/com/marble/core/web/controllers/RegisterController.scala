@@ -28,19 +28,20 @@ class RegisterController @Inject() (auth: Auth, c: Cache) extends Controller {
         val body: AnyContent = request.body
         body.asFormUrlEncoded.map { form =>
             val email = form.get("email").map(_.head)
-            val name = form.get("name").map(_.head)
+            val fname = form.get("first_name").map(_.head)
+            val lname = form.get("last_name").map(_.head)
             val password = form.get("password").map(_.head)
-            if (email.isDefined && name.isDefined && password.isDefined) {
+            if (email.isDefined && fname.isDefined && lname.isDefined && password.isDefined) {
                 val userExists = User.findByEmail(email.get)
                 if (userExists.isDefined && Etc.checkPass(password.get, userExists.get.password))
                     Found("/").withCookies(auth.newSessionCookies(userExists.get.userId.get))
-                val newUser = User.register(name.get, password.get, email.get)
+                val newUser = User.register(fname.get, lname.get, password.get, email.get)
                 if (newUser.isDefined) {
                     val token = auth.getNewUserSessionId(User.find(newUser.get.toInt).getOrElse(return BadRequest("Error.")).userId.get)
                     val sess = new cache.Session(c)(token)
                     sess.set("getting_started", "true")
                     if (Play.isProd) {
-                        MailTemplates.sendWelcomeEmail(name.get, email.get)
+                        MailTemplates.sendWelcomeEmail(fname.get, email.get)
                     }
                     Found("/").withCookies(auth.newSessionCookies(token))
                 }

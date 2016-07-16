@@ -92,12 +92,17 @@ class EtcController @Inject() (auth: Auth, cache: Cache) extends Controller {
                             subms.foreach { p =>
                                 val userId = users(Random.nextInt(users.size))
                                 val time = System.currentTimeMillis() - (Random.nextInt(13) * 1800000)
-                                if (p.getUrl.contains("imgur") && (!p.getUrl.contains("gallery") && !p.getUrl.contains("/a/")) && !p.getTitle.contains("r/")) {
+                                if (p.getUrl.contains("imgur") && (!p.getUrl.contains("gallery") && !p.getUrl.contains("/a/")) && !p.getTitle.contains("r/") ||
+                                    p.getUrl.contains("i.redd.it")) {
                                     val url = {
-                                        if (!p.getUrl.contains("i.imgur.com") && !p.getUrl.contains("gifv")) {
-                                            p.getURL + ".jpg"
+                                        if (p.getUrl.contains("imgur")) {
+                                            if (!p.getUrl.contains("i.imgur.com") && !p.getUrl.contains("gifv")) {
+                                                p.getURL + ".jpg"
+                                            } else {
+                                                p.getURL.replace(".gifv", ".gif")
+                                            }
                                         } else {
-                                            p.getURL.replace(".gifv", ".gif")
+                                            p.getUrl
                                         }
                                     }
                                     val id = uploadURL(url)
